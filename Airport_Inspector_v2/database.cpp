@@ -32,23 +32,21 @@ void Database::ConnectToDataBase() {
     status_connection = data_base->open();
     emit sig_SendStatusConnection(status_connection);
 
-    QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
-    QSqlQuery* query = new QSqlQuery(*data_base);
-    QSqlError error;
+//    QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
+//    QSqlQuery* query = new QSqlQuery(*data_base);
+//    QSqlError error;
 
-    if (status_connection) {
-        if(!query->exec(request)){
-            error = query->lastError();
+//    if (status_connection) {
+//        if(!query->exec(request)){
+//            error = query->lastError();
+//        } else {
+//            model_main->setQuery(*query);
 
-            emit
-        } else {
-            model_main->setQuery(*query);
-
-            emit sig_SendQueryFromDB(model_main);
-            emit sig_SendListAirports(model_main);
-        }
-    }
-    delete query;
+//            emit sig_SendQueryFromDB(model_main);
+//            emit sig_SendListAirports(model_main);
+//        }
+//    }
+//    delete query;
 }
 
 void Database::DisconnectFromDataBase(QString nameDb) {
