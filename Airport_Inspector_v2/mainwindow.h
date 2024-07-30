@@ -23,7 +23,11 @@ public slots:
     /*!
      * @brief Получить статус подключения к БД.
      */
-    void ReceiveStatusConnectionToDB(bool status);
+    void rcv_StatusConnectionToDB(bool status);
+    /*!
+     * @brief Получить статус реквеста к БД.
+     */
+    void rcv_StatusRequest(QSqlError err);
 
 signals:
     /*!
@@ -45,5 +49,14 @@ private:
      * @brief Подключение к БД.
      */
     void ConnectToDB();
+
+    /*!
+     * @brief Первоначальная настройка окна.
+     */
+    void InitialSetup();
+    /*!
+     * @brief Запрос данных обо всех аэропортах.
+     */
+    void FirstRequest();
 };
 #endif // MAINWINDOW_H

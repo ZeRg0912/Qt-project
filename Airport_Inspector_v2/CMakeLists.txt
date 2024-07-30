@@ -11,8 +11,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Concurrent Sql PrintSupport REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent Sql PrintSupport REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Concurrent Sql Charts REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Concurrent Sql Charts REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -23,9 +23,6 @@ set(PROJECT_SOURCES
         Database.cpp
         Timer.h
         Timer.cpp
-        StatisticWindow.h
-        StatisticWindow.cpp
-        StatisticWindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -57,13 +54,12 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(Airport_Inspector_v2 PRIVATE  Qt${QT_VERSION_MAJOR}::Widgets
                                                     Qt${QT_VERSION_MAJOR}::Concurrent
                                                     Qt${QT_VERSION_MAJOR}::Sql
-                                                    Qt${QT_VERSION_MAJOR}::PrintSupport
+                                                    Qt${QT_VERSION_MAJOR}::Charts
                                                     libcrypto-3-x64
                                                     libiconv-2
                                                     libintl-9
                                                     libpq
-                                                    libssl-3-x64
-                                                    qcustomplot2)
+                                                    libssl-3-x64)
 
 set_target_properties(Airport_Inspector_v2 PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
