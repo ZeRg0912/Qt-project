@@ -14,22 +14,15 @@ class Timer : public QObject
 public:
     Timer(QObject *parent = nullptr);
     ~Timer();
-    /*!
-     *  @brief Запуск таймера
-     */
+
     void StartTimer();
 
 signals:
-    /*!
-     *  @brief Сигнал реконнекта
-     */
     void sig_Reconnect();
 
 private:
     QTimer *timer;
-    /*!
-     *  @brief Попытка реконнекта по истечению таймера
-     */
+
     void TimeToReconnect();
 };
 

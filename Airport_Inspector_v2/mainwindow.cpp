@@ -63,8 +63,8 @@ void MainWindow::rcv_StatusRequest(QSqlError err) {
 
 void MainWindow::rcv_Airports(QSqlQueryModel* model) {
     for (size_t i = 0; i < model->rowCount(); i++) {
-        ui->cb_Airports->addItem(model->data(model->index(i,0)).toString());
-        airports[model->data(model->index(i,0)).toString()] = model->data(model->index(i,1)).toString();
+        ui->cb_Airports->addItem(model->data(model->index(i, 0)).toString());
+        airports[model->data(model->index(i, 0)).toString()] = model->data(model->index(i, 1)).toString();
     }
 
     ui->tv_MainWindow->setModel(model);
@@ -106,10 +106,9 @@ void MainWindow::InitialSetup() {
     ConnectToDB();
 }
 
-void MainWindow::GetAirports() {
-    QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
+void MainWindow::GetAirports() {    
     ui->tv_MainWindow->setModel(nullptr);
-    data_base->GetAirports(request);
+    data_base->GetAirports();
 }
 
 void MainWindow::on_pb_GetShedule_clicked() {

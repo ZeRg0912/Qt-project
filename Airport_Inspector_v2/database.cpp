@@ -14,10 +14,10 @@ void Database::AddDataBase(QString driver, QString nameDB) {
 }
 
 void Database::ConnectToDB() {
-    data_base->setHostName("localhost");
+    data_base->setHostName("981757-ca08998.tmweb.ru");
     data_base->setDatabaseName(DB_NAME);
-    data_base->setUserName("postgres");
-    data_base->setPassword("Zerg0987");
+    data_base->setUserName("netology_usr_cpp");
+    data_base->setPassword("CppNeto3");
     data_base->setPort(5432);
 
     status_connection = data_base->open();
@@ -34,24 +34,27 @@ QSqlError Database::GetLastError() {
 }
 
 //!< Requests
-void Database::GetAirports(const QString& request) {
+void Database::GetAirports() {
     if (status_connection) {
+        QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
         QSqlError err;
-        query_model = new QSqlQueryModel(this);
+        auto query_model = new QSqlQueryModel(this);
+
         query_model->setQuery(request, *data_base);
         query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
-        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
-        query_model->setHeaderData(2, Qt::Horizontal, tr("Прилет"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Код аэропорта"));
 
         err = query_model->lastError();
 
         if (err.type() != QSqlError::NoError) {
-            emit sig_SendStatusRequest(err);
+           emit sig_SendStatusRequest(err);
         } else {
-            emit sig_SendAirports(query_model);
+           emit sig_SendAirports(query_model);
         }
     }
 }
+
+
 
 void Database::GetArrivals(const QString& airport_code, const QString& date) {
     if (status_connection) {
@@ -62,11 +65,12 @@ void Database::GetArrivals(const QString& airport_code, const QString& date) {
                           "WHERE (f.arrival_airport  = '" + airport_code + "' AND f.scheduled_arrival::date = date('" + parsed_date + "')) "
                           "ORDER BY name";
 
-        query_model = new QSqlQueryModel(this);
+        auto query_model = new QSqlQueryModel(this);
         QSqlError err;
         query_model->setQuery(request, *data_base);
-        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
-        query_model->setHeaderData(1, Qt::Horizontal, tr("Прилет"));
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Рейс"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Прибытие"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("Аэропорт"));
 
         err = query_model->lastError();
 
@@ -87,11 +91,12 @@ void Database::GetDepartures(const QString &airport_code, const QString& date) {
                           "WHERE (f.departure_airport  = '" + airport_code + "' AND f.scheduled_departure::date = date('" + parsed_date + "')) "
                           "ORDER BY name";
 
-        query_model = new QSqlQueryModel(this);
+        auto query_model = new QSqlQueryModel(this);
         QSqlError err;
         query_model->setQuery(request, *data_base);
-        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Рейс"));
         query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("Аэропорт"));
 
         err = query_model->lastError();
 
@@ -112,11 +117,11 @@ void Database::GetDataPerYear(const QString &airport_code) {
                           "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
                           "GROUP BY Month";
 
-        query_model = new QSqlQueryModel(this);
+        auto query_model = new QSqlQueryModel(this);
         QSqlError err;
         query_model->setQuery(request, *data_base);
-        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
-        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Количество рейсов"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Месяц"));
 
         err = query_model->lastError();
 
@@ -137,11 +142,12 @@ void Database::GetDataPerMonth(const QString &airport_code) {
                           "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
                           "GROUP BY Day";
 
-        query_model = new QSqlQueryModel(this);
+        auto query_model = new QSqlQueryModel(this);
         QSqlError err;
         query_model->setQuery(request, *data_base);
-        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
-        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Количество рейсов"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Месяц"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("День"));
 
         err = query_model->lastError();
 

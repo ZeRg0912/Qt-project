@@ -2,6 +2,7 @@
 #define AIRPORTSTATISTIC_H
 
 #include <QWidget>
+#include <QtCharts>
 
 namespace Ui {
 class AirportStatistic;
@@ -20,14 +21,13 @@ private slots:
 
 private:
     Ui::AirportStatistic *ui;
-    /*!
-     * @brief Первоначальная настройка окна.
-     */
-    void InitialSetup();
-    //!< Название аэропорта.
     QString name = "";
-    //!< Месяцы.
     QMap<int, QString> months;
+    QChart* chart;
+    QChartView* chartView;
+
+    void InitialSetup();
+
 };
 
 #endif // AIRPORTSTATISTIC_H

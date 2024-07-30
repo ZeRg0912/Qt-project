@@ -19,9 +19,19 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="QWidget" name="tab_Year">
+      <attribute name="title">
+       <string>Year</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QWidget" name="wid_YearChart" native="true"/>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tab_Month">
       <attribute name="title">
-       <string>Tab 1</string>
+       <string>Month</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
        <item row="0" column="0">
@@ -29,16 +39,6 @@
        </item>
        <item row="1" column="0">
         <widget class="QWidget" name="wid_MonthChart" native="true"/>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab_Year">
-      <attribute name="title">
-       <string>Tab 2</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QWidget" name="wid_YearChart" native="true"/>
        </item>
       </layout>
      </widget>

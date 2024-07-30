@@ -21,8 +21,15 @@ void AirportStatistic::InitialSetup(){
 
     ui->lb_Airport->setText("Загруженность аэропорта " + name);
     ui->pb_Close->setText("Закрыть статистику");
-    ui->tabWidget->setTabText(0, "За месяц");
-    ui->tabWidget->setTabText(1, "За год");
+    ui->tabWidget->setTabText(0, "За год");
+    ui->tabWidget->setTabText(1, "За месяц");
+
+    chart = new QChart();
+    chart->setTitle("Статистика рейсов");
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setParent(ui->wid_YearChart);
+    chartView->show();
 }
 
 void AirportStatistic::on_pb_Close_clicked() {
