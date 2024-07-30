@@ -8,7 +8,6 @@ Database::~Database() {
     delete data_base;
 }
 
-
 //!< Main methods
 void Database::AddDataBase(QString driver, QString nameDB) {
     *data_base = QSqlDatabase::addDatabase(driver, nameDB);
@@ -34,7 +33,8 @@ QSqlError Database::GetLastError() {
     return data_base->lastError();
 }
 
-void Database::RequestToDB(const QString& request, QTableView* table_view) {
+//!< Requests
+void Database::GetAirports(const QString& request) {
     if (status_connection) {
         QSqlError err;
         query_model = new QSqlQueryModel(this);
@@ -48,13 +48,110 @@ void Database::RequestToDB(const QString& request, QTableView* table_view) {
         if (err.type() != QSqlError::NoError) {
             emit sig_SendStatusRequest(err);
         } else {
-            table_view->setModel(query_model);
+            emit sig_SendAirports(query_model);
         }
     }
 }
 
-//!< Requests
+void Database::GetArrivals(const QString& airport_code, const QString& date) {
+    if (status_connection) {
+        QString parsed_date = ConvertDate(date);
+        QString request = "SELECT flight_no, scheduled_arrival, ad.airport_name->>'ru' AS name "
+                          "FROM bookings.flights f "
+                          "JOIN bookings.airports_data ad on ad.airport_code = f.departure_airport "
+                          "WHERE (f.arrival_airport  = '" + airport_code + "' AND f.scheduled_arrival::date = date('" + parsed_date + "')) "
+                          "ORDER BY name";
 
+        query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Прилет"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendArrivals(query_model);
+        }
+    }
+}
+
+void Database::GetDepartures(const QString &airport_code, const QString& date) {
+    if (status_connection) {
+        QString parsed_date = ConvertDate(date);
+        QString request = "SELECT flight_no, scheduled_departure, ad.airport_name->>'ru' AS name "
+                          "FROM bookings.flights f "
+                          "JOIN bookings.airports_data ad on ad.airport_code = f.arrival_airport "
+                          "WHERE (f.departure_airport  = '" + airport_code + "' AND f.scheduled_departure::date = date('" + parsed_date + "')) "
+                          "ORDER BY name";
+
+        query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDepartures(query_model);
+        }
+    }
+}
+
+void Database::GetDataPerYear(const QString &airport_code) {
+    if (status_connection) {
+        QString request = "SELECT count(flight_no), date_trunc('month', scheduled_departure) AS Month "
+                          "FROM bookings.flights f "
+                          "WHERE (scheduled_departure::date > date('2016-08-31') "
+                          "AND scheduled_departure::date <= date('2017-08-31')) AND "
+                          "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
+                          "GROUP BY Month";
+
+        query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDataPerYear(query_model);
+        }
+    }
+}
+
+void Database::GetDataPerMonth(const QString &airport_code) {
+    if (status_connection) {
+        QString request = "SELECT count(flight_no), date_part('month', date_trunc('day', scheduled_departure)), date_trunc('day', scheduled_departure) AS Day "
+                          "FROM bookings.flights f "
+                          "WHERE (scheduled_departure::date > date('2016-08-31') "
+                          "AND scheduled_departure::date <= date('2017-08-31')) AND "
+                          "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
+                          "GROUP BY Day";
+
+        query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDataPerMonth(query_model);
+        }
+    }
+}
 
 //!< UTILS
 QString Database::ConvertDate(const QString &date) {

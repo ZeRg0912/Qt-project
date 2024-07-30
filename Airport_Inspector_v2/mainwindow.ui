@@ -74,7 +74,7 @@
         <widget class="QDateEdit" name="de_Date">
          <property name="dateTime">
           <datetime>
-           <hour>18</hour>
+           <hour>15</hour>
            <minute>0</minute>
            <second>0</second>
            <year>2016</year>
@@ -84,7 +84,7 @@
          </property>
          <property name="maximumDateTime">
           <datetime>
-           <hour>17</hour>
+           <hour>14</hour>
            <minute>59</minute>
            <second>59</second>
            <year>2017</year>
@@ -94,7 +94,7 @@
          </property>
          <property name="minimumDateTime">
           <datetime>
-           <hour>18</hour>
+           <hour>15</hour>
            <minute>0</minute>
            <second>0</second>
            <year>2016</year>

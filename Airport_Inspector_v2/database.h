@@ -7,6 +7,7 @@
 #include <QSqlDatabase>
 #include <QtSql>
 #include <QSqlQueryModel>
+#include <QtConcurrent>
 
 #define POSTGRE_DRIVER "QPSQL"
 #define DB_NAME "test-db"
@@ -49,10 +50,31 @@ public:
      */
     void DisconnectFromDataBase(QString nameDb = "");
     /*!
-     *  @brief Реквест к ДБ.
+     *  @brief Реквест получения списка аэропортов к ДБ.
      *  @param SQL запрос.
      */
-    void RequestToDB(const QString& request, QTableView* table_view);
+    void GetAirports(const QString& request);    /*!
+     *  @brief Получить данные о рейсах в аэропорт.
+     *  @param airport_code Код аэропорта.
+     *  @param date Дата.
+     */
+    void GetArrivals(const QString& airport_code, const QString& date);
+    /*!
+     *  @brief Получить данные о рейсах из аэропорта.
+     *  @param airport_code Код аэропорта.
+     *  @param date Дата.
+     */
+    void GetDepartures(const QString& airport_code, const QString& date);
+    /*!
+     *  @brief Получить данные за год по месяцам.
+     *  @param airport_code Код аэропорта.
+     */
+    void GetDataPerYear(const QString &airport_code);
+    /*!
+     *  @brief Получить данные за год по дням.
+     *  @param airport_code Код аэропорта.
+     */
+    void GetDataPerMonth(const QString &airport_code);
 
 signals:
     /*!
@@ -64,9 +86,30 @@ signals:
      */
     void sig_SendStatusRequest(QSqlError err);
     /*!
-     * @brief Сигнал: "Отправить данные из ДБ".
+     * @brief Сигнал: "Отправить данные об аэропортах из ДБ".
+     * @param model Модель SQL запроса.
      */
-    void sig_SendDataFromDB(const QSqlQueryModel& model);
+    void sig_SendAirports(QSqlQueryModel* model);
+    /*!
+     * @brief Сигнал: "Отправить данные о рейсах в аэропорт".
+     * @param model Модель SQL запроса.
+     */
+    void sig_SendArrivals(QSqlQueryModel* model);
+    /*!
+     * @brief Сигнал: "Отправить данные о рейсах из аэропорта".
+     * @param model Модель SQL запроса.
+     */
+    void sig_SendDepartures(QSqlQueryModel* model);
+    /*!
+     * @brief Сигнал: "Отправить данные за год по месяцам".
+     * @param model Модель SQL запроса.
+     */
+    void sig_SendDataPerYear(QSqlQueryModel* model);
+    /*!
+     * @brief Сигнал: "Отправить данные за год по дням".
+     * @param model Модель SQL запроса.
+     */
+    void sig_SendDataPerMonth(QSqlQueryModel* model);
 
 private:
     //!< База данных
@@ -75,7 +118,7 @@ private:
     bool status_connection;
     //!< Модель SQL запроса.
     QSqlQueryModel* query_model;
-     //!< Конвертация даты в нужный формат.
+    //!< Конвертация даты в нужный формат.
     QString ConvertDate(const QString& date);
 };
 

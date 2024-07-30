@@ -28,12 +28,34 @@ public slots:
      * @brief Получить статус реквеста к БД.
      */
     void rcv_StatusRequest(QSqlError err);
+    /*!
+     * @brief Получить данные из БД.
+     */
+    void rcv_Airports(QSqlQueryModel* model);
+    /*!
+     * @brief Отображение запроса к БД в главном окне.
+     * @param model Модель SQL запроса.
+     */
+    void rcv_QueryFromDB(QSqlQueryModel *model);
+    /*!
+     * @brief Данные о загрзке аэропорта за год.
+     * @param model Модель SQL запроса.
+     */
+    void rcv_DataPerYear(QSqlQueryModel *model);
+    /*!
+     * @brief Данные о загрзке аэропорта за месяц.
+     * @param model Модель SQL запроса.
+     */
+    void rcv_DataPerMonth(QSqlQueryModel *model);
 
 signals:
     /*!
      * @brief Запуск таймера до реконнекта.
      */
     void sig_StartTimer();
+
+private slots:
+    void on_pb_GetShedule_clicked();
 
 private:
     ///!< Главное окно.
@@ -44,6 +66,8 @@ private:
     Timer* timer;
     //!< Окно ошибки подключения к БД.
     QMessageBox *msg;
+    //!< Аэропорты.
+    QMap<QString, QString> airports;
 
     /*!
      * @brief Подключение к БД.
@@ -57,6 +81,6 @@ private:
     /*!
      * @brief Запрос данных обо всех аэропортах.
      */
-    void FirstRequest();
+    void GetAirports();
 };
 #endif // MAINWINDOW_H
