@@ -23,6 +23,9 @@ set(PROJECT_SOURCES
         Database.cpp
         Timer.h
         Timer.cpp
+        AirportStatistic.h
+        AirportStatistic.cpp
+        AirportStatistic.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

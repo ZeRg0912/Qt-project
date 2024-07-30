@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include "database.h"
 #include "timer.h"
+#include "airportstatistic.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -57,6 +58,8 @@ signals:
 private slots:
     void on_pb_GetShedule_clicked();
 
+    void on_pb_ShowWorkload_clicked();
+
 private:
     ///!< Главное окно.
     Ui::MainWindow *ui;
@@ -68,6 +71,8 @@ private:
     QMessageBox *msg;
     //!< Аэропорты.
     QMap<QString, QString> airports;
+    //!< Окно статистики выбранного аэропорта.
+    AirportStatistic* statistic;
 
     /*!
      * @brief Подключение к БД.

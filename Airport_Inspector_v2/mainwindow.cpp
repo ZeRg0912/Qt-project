@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     data_base = new Database(this);
     timer = new Timer(this);
     msg = new QMessageBox(this);
+    statistic = new AirportStatistic(nullptr, "");
 
     InitialSetup();
 
@@ -120,5 +121,11 @@ void MainWindow::on_pb_GetShedule_clicked() {
     } else if (ui->rb_Departure->isChecked()) {
         data_base->GetDepartures(airport_code, date);
     }
+}
+
+void MainWindow::on_pb_ShowWorkload_clicked() {
+    statistic->close();
+    statistic = new AirportStatistic(nullptr, ui->cb_Airports->currentText());
+    statistic->show();
 }
 
