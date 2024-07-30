@@ -11,6 +11,14 @@ AirportStatistic::~AirportStatistic() {
 }
 
 void AirportStatistic::InitialSetup(){
+    QStringList month_names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
+    for (size_t i = 1; i < 13; i++) {
+        months.insert(i, month_names[i - 1]);
+    }
+    for (const auto& [key, value] : months.asKeyValueRange()) {
+        ui->cb_Months->addItem(value);
+    }
+
     ui->lb_Airport->setText("Загруженность аэропорта " + name);
     ui->pb_Close->setText("Закрыть статистику");
     ui->tabWidget->setTabText(0, "За месяц");

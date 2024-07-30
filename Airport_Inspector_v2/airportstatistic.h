@@ -26,6 +26,8 @@ private:
     void InitialSetup();
     //!< Название аэропорта.
     QString name = "";
+    //!< Месяцы.
+    QMap<int, QString> months;
 };
 
 #endif // AIRPORTSTATISTIC_H

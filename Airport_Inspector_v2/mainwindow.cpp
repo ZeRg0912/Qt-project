@@ -126,6 +126,8 @@ void MainWindow::on_pb_GetShedule_clicked() {
 void MainWindow::on_pb_ShowWorkload_clicked() {
     statistic->close();
     statistic = new AirportStatistic(nullptr, ui->cb_Airports->currentText());
+    data_base->GetDataPerYear(airports[ui->cb_Airports->currentText()]);
+    data_base->GetDataPerMonth(airports[ui->cb_Airports->currentText()]);
     statistic->show();
 }
 
