@@ -23,11 +23,12 @@ private:
     Ui::AirportStatistic *ui;
     QString name = "";
     QMap<int, QString> months;
-    QChart* chart;
-    QChartView* chartView;
+
+    QLineSeries *series;
+    QChart *chart;
+    QChartView *chartView;
 
     void InitialSetup();
-
 };
 
 #endif // AIRPORTSTATISTIC_H

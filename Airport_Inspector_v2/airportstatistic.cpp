@@ -8,6 +8,9 @@ AirportStatistic::AirportStatistic(QWidget *parent, QString name_) : QWidget(par
 
 AirportStatistic::~AirportStatistic() {
     delete ui;
+    delete chart;
+    delete graphClass;
+    delete chartView;
 }
 
 void AirportStatistic::InitialSetup(){
@@ -23,13 +26,6 @@ void AirportStatistic::InitialSetup(){
     ui->pb_Close->setText("Закрыть статистику");
     ui->tabWidget->setTabText(0, "За год");
     ui->tabWidget->setTabText(1, "За месяц");
-
-    chart = new QChart();
-    chart->setTitle("Статистика рейсов");
-
-    QChartView *chartView = new QChartView(chart);
-    chartView->setParent(ui->wid_YearChart);
-    chartView->show();
 }
 
 void AirportStatistic::on_pb_Close_clicked() {

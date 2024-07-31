@@ -14,10 +14,16 @@ void Database::AddDataBase(QString driver, QString nameDB) {
 }
 
 void Database::ConnectToDB() {
-    data_base->setHostName("981757-ca08998.tmweb.ru");
+//    data_base->setHostName("981757-ca08998.tmweb.ru");
+//    data_base->setDatabaseName(DB_NAME);
+//    data_base->setUserName("netology_usr_cpp");
+//    data_base->setPassword("CppNeto3");
+//    data_base->setPort(5432);
+
+    data_base->setHostName("localhost");
     data_base->setDatabaseName(DB_NAME);
-    data_base->setUserName("netology_usr_cpp");
-    data_base->setPassword("CppNeto3");
+    data_base->setUserName("postgres");
+    data_base->setPassword("Zerg0987");
     data_base->setPort(5432);
 
     status_connection = data_base->open();
