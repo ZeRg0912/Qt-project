@@ -42,7 +42,11 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
-        <widget class="QComboBox" name="cb_Months"/>
+        <widget class="QComboBox" name="cb_Months">
+         <property name="currentIndex">
+          <number>-1</number>
+         </property>
+        </widget>
        </item>
        <item row="1" column="0">
         <widget class="QWidget" name="wid_MonthChart" native="true"/>

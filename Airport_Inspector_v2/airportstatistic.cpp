@@ -84,14 +84,14 @@ void AirportStatistic::ChartsSetup() {
     font.setBold(true);
     month_AxisX->setTitleFont(font);
     month_AxisX->setLabelFormat("%i");
-    year_chart->addAxis(month_AxisX, Qt::AlignBottom);
-    year_series->attachAxis(month_AxisX);
+    month_chart->addAxis(month_AxisX, Qt::AlignBottom);
+    month_series->attachAxis(month_AxisX);
 
     QValueAxis* month_AxisY = new QValueAxis(this);
     month_AxisY->setTitleText("Кол-во рейсов");
     month_AxisY->setLabelFormat("%g");
-    year_chart->addAxis(month_AxisY, Qt::AlignLeft);
-    year_series->attachAxis(month_AxisY);
+    month_chart->addAxis(month_AxisY, Qt::AlignLeft);
+    month_series->attachAxis(month_AxisY);
 
     //!< Настройка графиков
     year_chart_view->setRenderHint(QPainter::Antialiasing);
@@ -114,8 +114,8 @@ void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QChartView* cha
     if (series_list.isEmpty()) return;
 
     QLineSeries* series = qobject_cast<QLineSeries*>(series_list.first());
+    if (!series) return;
     series->clear();
-
     series->append(data);
 
     QList<QAbstractAxis*> axesX = chart->axes(Qt::Horizontal);
@@ -147,11 +147,14 @@ void AirportStatistic::on_pb_Close_clicked() {
 }
 
 void AirportStatistic::on_cb_Months_currentIndexChanged(int index) {
-    QVector<QPointF> month_data;
-    for (size_t i = 0; i < index; i++) {
-        month_data.append(QPointF(i + 1, i));
-    }
+    if (ui->cb_Months->count() == 0 || index < 0 || index>= ui->cb_Months->count()) return;
+    if (month_chart_view != nullptr) {
+        QVector<QPointF> month_data;
+        for (size_t i = 0; i <= index; i++) {
+            month_data.append(QPointF(i, i));
+        }
 
-    //UpdateGraph(month_data, month_chart_view);
+        UpdateGraph(month_data, month_chart_view);
+    }
 }
 

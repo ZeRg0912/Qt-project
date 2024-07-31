@@ -55,7 +55,7 @@ void MainWindow::rcv_StatusConnectionToDB(bool status_connection) {
 
 void MainWindow::rcv_StatusRequest(QSqlError err) {
     if (err.type() != QSqlError::NoError) {
-        msg->setIcon(QMessageBox::Critical);
+        msg->setIcon(QMessageBox::Warning);
         msg->setText(err.text());
         msg->exec();
     }
