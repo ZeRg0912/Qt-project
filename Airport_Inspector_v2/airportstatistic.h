@@ -18,16 +18,22 @@ public:
     explicit AirportStatistic(QWidget *parent = nullptr, QString name = "");
     ~AirportStatistic();
 
-    void SetYearGraph();
-    void SetMonthGraph();
+    void SetYearGraph(size_t data);
+    void SetMonthGraph(size_t data);
+    void ClearLayout(QGridLayout* layout);
 
 private slots:
     void on_pb_Close_clicked();
+
+    void on_cb_Months_currentIndexChanged(int index);
 
 private:
     Ui::AirportStatistic *ui;
     QString name = "";
     QMap<int, QString> months;
+
+    QGridLayout* month_layout;
+    QGridLayout* year_layout;
 
     void InitialSetup();
 };

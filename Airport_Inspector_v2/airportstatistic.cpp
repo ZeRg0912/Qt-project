@@ -8,6 +8,8 @@ AirportStatistic::AirportStatistic(QWidget *parent, QString name_) : QWidget(par
 
 AirportStatistic::~AirportStatistic() {
     delete ui;
+    delete year_layout;
+    delete month_layout;
 }
 
 void AirportStatistic::InitialSetup(){
@@ -24,18 +26,38 @@ void AirportStatistic::InitialSetup(){
     ui->tabWidget->setTabText(0, "За год");
     ui->tabWidget->setTabText(1, "За месяц");
 
-    SetYearGraph();
-    SetMonthGraph();
+    year_layout = new QGridLayout;
+    month_layout = new QGridLayout;
+
+    for (size_t i = 0; i < 100; i++){
+        SetYearGraph(i);
+        SetMonthGraph(i);
+    }
 }
 
-void AirportStatistic::SetYearGraph() {
+void AirportStatistic::ClearLayout(QGridLayout *layout){
+    if (layout == nullptr) {
+        return;
+    }
+
+    while (layout->count() > 0) {
+        QLayoutItem* item = layout->takeAt(0);
+        if (item->widget()){
+            delete item->widget();
+        }
+        delete item;
+    }
+}
+
+void AirportStatistic::SetYearGraph(size_t data) {
+    ClearLayout(year_layout);
     QChart* chart = new QChart();
     QChartView* chartView = new QChartView(chart);
     QLineSeries* series = new QLineSeries(this);
-    QGridLayout* year_layout = new QGridLayout;
 
-    *series << QPointF(1.0, 1.0) << QPointF(2.0, 73.0) << QPointF(3.0, 268.0) << QPointF(4.0, 17.0)
-            << QPointF(5.0, 4325.0) << QPointF(6.0, 723.0);
+    for (size_t i = 0; i < data; i++){
+        *series << QPoint(i + 1, i);
+    }
 
     chart->addSeries(series);
     chart->legend()->hide();
@@ -61,14 +83,15 @@ void AirportStatistic::SetYearGraph() {
     //chartView->show();
 }
 
-void AirportStatistic::SetMonthGraph() {
+void AirportStatistic::SetMonthGraph(size_t data) {
+    ClearLayout(month_layout);
     QChart* chart = new QChart();
     QChartView* chartView = new QChartView(chart);
     QLineSeries* series = new QLineSeries(this);
-    QGridLayout* month_layout = new QGridLayout;
 
-    *series << QPointF(1.0, 15000) << QPointF(2.0, 213.0) << QPointF(3.0, 10000.0) << QPointF(4.0, 17.0)
-            << QPointF(5.0, 4325.0);
+    for (size_t i = 0; i < data; i++){
+        *series << QPoint(i + 1, i);
+    }
 
     chart->addSeries(series);
     chart->legend()->hide();
@@ -96,5 +119,10 @@ void AirportStatistic::SetMonthGraph() {
 
 void AirportStatistic::on_pb_Close_clicked() {
     this->close();
+}
+
+
+void AirportStatistic::on_cb_Months_currentIndexChanged(int index) {
+
 }
 
