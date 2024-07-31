@@ -14,17 +14,24 @@
    <string>Airport statistic</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="1">
+    <widget class="QLabel" name="lb_Airport">
+     <property name="text">
+      <string>b_Airport</string>
+     </property>
+    </widget>
+   </item>
    <item row="1" column="1">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="tab_Year">
       <attribute name="title">
        <string>Year</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="1" column="0">
         <widget class="QWidget" name="wid_YearChart" native="true"/>
        </item>
       </layout>
@@ -33,7 +40,7 @@
       <attribute name="title">
        <string>Month</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
+      <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QComboBox" name="cb_Months"/>
        </item>
@@ -48,13 +55,6 @@
     <widget class="QPushButton" name="pb_Close">
      <property name="text">
       <string>pb_Close</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="QLabel" name="lb_Airport">
-     <property name="text">
-      <string>b_Airport</string>
      </property>
     </widget>
    </item>

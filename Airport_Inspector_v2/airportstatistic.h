@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QtCharts>
 
+#define NUM_GRAPHS 2
+
 namespace Ui {
 class AirportStatistic;
 }
@@ -16,6 +18,9 @@ public:
     explicit AirportStatistic(QWidget *parent = nullptr, QString name = "");
     ~AirportStatistic();
 
+    void SetYearGraph();
+    void SetMonthGraph();
+
 private slots:
     void on_pb_Close_clicked();
 
@@ -23,10 +28,6 @@ private:
     Ui::AirportStatistic *ui;
     QString name = "";
     QMap<int, QString> months;
-
-    QLineSeries *series;
-    QChart *chart;
-    QChartView *chartView;
 
     void InitialSetup();
 };
