@@ -18,13 +18,8 @@ public:
     explicit AirportStatistic(QWidget *parent = nullptr, QString name = "");
     ~AirportStatistic();
 
-    void SetYearGraph(size_t data);
-    void SetMonthGraph(size_t data);
-    void ClearLayout(QGridLayout* layout);
-
 private slots:
     void on_pb_Close_clicked();
-
     void on_cb_Months_currentIndexChanged(int index);
 
 private:
@@ -32,10 +27,17 @@ private:
     QString name = "";
     QMap<int, QString> months;
 
-    QGridLayout* month_layout;
-    QGridLayout* year_layout;
+    QChart* month_chart;
+    QChartView* month_chart_view;
+    QLineSeries* month_series;
+
+    QChart* year_chart;
+    QChartView* year_chart_view;
+    QLineSeries* year_series;
 
     void InitialSetup();
+    void ChartsSetup();
+    void UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view);
 };
 
 #endif // AIRPORTSTATISTIC_H
