@@ -35,7 +35,7 @@ void AirportStatistic::InitialSetup(){
     ui->lb_Airport->setText("Загруженность аэропорта " + name);
     ui->pb_Close->setText("Закрыть статистику");
     ui->tabWidget->setTabText(0, "За год");
-    ui->tabWidget->setTabText(1, "За месяц");    
+    ui->tabWidget->setTabText(1, "За месяц");
 }
 
 void AirportStatistic::ChartsSetup() {
@@ -147,11 +147,11 @@ void AirportStatistic::on_pb_Close_clicked() {
 }
 
 void AirportStatistic::on_cb_Months_currentIndexChanged(int index) {
-    if (ui->cb_Months->count() == 0 || index < 0 || index>= ui->cb_Months->count()) return;
+    if (ui->cb_Months->count() == 0 || index <= 0 || index>= ui->cb_Months->count()) return;
     if (month_chart_view != nullptr) {
         QVector<QPointF> month_data;
         for (size_t i = 0; i <= index; i++) {
-            month_data.append(QPointF(i, i));
+            month_data.append(QPointF(i + 1, i));
         }
 
         UpdateGraph(month_data, month_chart_view);
