@@ -1,158 +1,146 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
+#include "./ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
-    ui->tb_main->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->tb_main->verticalHeader()->setVisible(false);
-    ui->groupBox->setEnabled(false);
-    ui->lb_status->setText("Отключено от БД");
-    ui->lb_status->setStyleSheet("color:red");
-    ui->statusbar->addWidget(ui->lb_status);
-    ui->rb_arrival->setChecked(true);
-    ui->centralwidget->setWindowTitle("Расписание");
+    data_base = new Database(this);
+    timer = new Timer(this);
+    msg = new QMessageBox(this);
+    statistic = new AirportStatistic(nullptr, "");
 
-    dataBase_ = new DataBase(this);
-    dataBase_->addDataBase(POSTGRE_DRIVER, DB_NAME);
+    InitialSetup();
 
-    statistics_ = new Statistics();
+    connect(data_base, &Database::sig_SendStatusConnection, this, &MainWindow::rcv_StatusConnectionToDB);
+    connect(data_base, &Database::sig_SendStatusRequest,    this, &MainWindow::rcv_StatusRequest);
+    connect(data_base, &Database::sig_SendAirports,         this, &MainWindow::rcv_Airports);
+    connect(data_base, &Database::sig_SendArrivals,         this, &MainWindow::rcv_ArrivalDeparture);
+    connect(data_base, &Database::sig_SendDepartures,       this, &MainWindow::rcv_ArrivalDeparture);
+    connect(data_base, &Database::sig_SendDataPerYear,      this, &MainWindow::rcv_DataPerYear);
+    connect(data_base, &Database::sig_SendDataPerMonth,     this, &MainWindow::rcv_DataPerMonth);
 
-    msgBox_ = new QMessageBox(this);
-
-    isFailConnection_ = false;
-
-    sw_ = new Stopwatch(this);
-    sw_->Start();
-
-    connect(sw_->getQTimer(), &QTimer::timeout, this, &MainWindow::RunConnectionToDB);
-
-    connect(dataBase_, &DataBase::sig_SendStatusConnection, this, &MainWindow::RcvSignalSendStatusConnectionToDB);
-    connect(dataBase_, &DataBase::sig_SendListAirports, this, &MainWindow::RcvSignalSendListAirports);
-    connect(dataBase_, &DataBase::sig_SendQueryFromDB, this, &MainWindow::RcvSignalSendQueryFromDB);
-    connect(dataBase_, &DataBase::sig_SendDataToArrivals, this, &MainWindow::RcvSignalSendQueryFromDB);
-    connect(dataBase_, &DataBase::sig_SendDataToDepartures, this, &MainWindow::RcvSignalSendQueryFromDB);
-    connect(dataBase_, &DataBase::sig_SendDataPerYear, this, &MainWindow::RcvSignalSendDataPerYear);
-    connect(dataBase_, &DataBase::sig_SendDataPerMonth, this, &MainWindow::RcvSignalSendDataPerMonth);
-    connect(statistics_, &Statistics::sig_CloseStatistics, this, &MainWindow::RcvSignalCloseStatistics);
+    connect(timer, &Timer::sig_Reconnect, this, &MainWindow::ConnectToDB);
+    connect(this, &MainWindow::sig_StartTimer, timer, &Timer::StartTimer);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::RunConnectionToDB()
-{
-    if (!dataBase_->getStatusConnection() && !isFailConnection_)
-    {
-        auto conn = [&]{dataBase_->connectToDB();};
-        QtConcurrent::run(conn);
-
-    }
-    if (isFailConnection_)
-    {
-        sw_->setTime(sw_->getCurrentTime() + 1);
-        if(sw_->getCurrentTime() >= 5)
-        {
-            isFailConnection_ = !isFailConnection_;
-        }
-    }
+//!< Main methods
+void MainWindow::ConnectToDB() {
+    auto connect_to_DB = [this]{
+        ui->lb_StatusConnect->setText("Подключение...");
+        ui->lb_StatusConnect->setStyleSheet("color:black");
+        data_base->ConnectToDB();
+    };
+    auto future = QtConcurrent::run(connect_to_DB);
 }
 
-void MainWindow::RcvSignalSendStatusConnectionToDB(bool status)
-{
-    if (status)
-    {
-        ui->lb_status->setText("Подключено к БД");
-        ui->lb_status->setStyleSheet("color:green");
-        ui->statusbar->addWidget(ui->lb_status);
-        ui->groupBox->setEnabled(true);
-        sw_->Stop();
-    }
-    else
-    {
-        isFailConnection_ = !isFailConnection_;
-        ui->lb_status->setText("Отключено от БД");
-        ui->lb_status->setStyleSheet("color:red");
-        ui->statusbar->addWidget(ui->lb_status);
-        dataBase_->disconnectFromDB(DB_NAME);
-        msgBox_->setIcon(QMessageBox::Critical);
-        msgBox_->setText(dataBase_->getLastError().text());
-        sw_->Stop();
-        msgBox_->exec();
-        sw_->setTime(0);
-        sw_->Start();
+void MainWindow::rcv_StatusConnectionToDB(bool status_connection) {
+    if(status_connection) {
+        ui->lb_StatusConnect->setText("Подключено к БД");
+        ui->lb_StatusConnect->setStyleSheet("color:green");
+        ui->gb_ControlPanel->setEnabled(true);
+        GetAirports();
+    } else {
+        data_base->DisconnectFromDataBase(DB_NAME);
+        ui->lb_StatusConnect->setText("Не удалось подключиться к БД!");
+        ui->lb_StatusConnect->setStyleSheet("color:red");
+        msg->setIcon(QMessageBox::Critical);
+        msg->setText(data_base->GetLastError().text());
+        msg->exec();
+        emit sig_StartTimer();
     }
 }
 
-void MainWindow::RcvSignalSendListAirports(QSqlQueryModel *model)
-{
-    for(int i = 0; i < model->rowCount(); ++i)
-    {
-        ui->cb_airports->addItem(model->data(model->index(i,0)).toString());
-        airports_[model->data(model->index(i,0)).toString()] = model->data(model->index(i,1)).toString();
-    }
-
-}
-
-void MainWindow::on_pb_getList_clicked()
-{
-    QString airportCode = airports_[ui->cb_airports->currentText()];
-    QString date = ui->de_date->text();
-    if(ui->rb_arrival->isChecked())
-    {
-        dataBase_->getDataArrivals(airportCode, date);
-    }
-    else if(ui->rb_departure->isChecked())
-    {
-        dataBase_->getDataDepartures(airportCode, date);
+void MainWindow::rcv_StatusRequest(QSqlError err) {
+    if (err.type() != QSqlError::NoError) {
+        msg->setIcon(QMessageBox::Warning);
+        msg->setText(err.text());
+        msg->exec();
     }
 }
 
-void MainWindow::RcvSignalSendQueryFromDB(QSqlQueryModel *model)
-{
-    ui->tb_main->setModel(model);
-}
-
-void MainWindow::on_pb_showLoad_clicked()
-{
-    ui->centralwidget->setEnabled(false);
-    QString airportCode = ui->cb_airports->currentText() +
-            " (" + airports_[ui->cb_airports->currentText()] + ")";
-    statistics_->setAirportText(airportCode);
-    dataBase_->getDataPerYear(airports_[ui->cb_airports->currentText()]);
-    dataBase_->getDataPerMonth(airports_[ui->cb_airports->currentText()]);
-    statistics_->show();
-}
-
-void MainWindow::RcvSignalSendDataPerYear(QSqlQueryModel *model)
-{
-    QVector<double> data;
-    for(int i = 0; i < model->rowCount(); ++i)
-    {
-        data.append(model->data(model->index(i,0)).toDouble());
+void MainWindow::rcv_Airports(QSqlQueryModel* model) {
+    for (size_t i = 0; i < model->rowCount(); i++) {
+        ui->cb_Airports->addItem(model->data(model->index(i, 0)).toString());
+        airports[model->data(model->index(i, 0)).toString()] = model->data(model->index(i, 1)).toString();
     }
-    statistics_->setDataPerYear(data);
+
+    ui->tv_MainWindow->setModel(model);
 }
 
-void MainWindow::RcvSignalSendDataPerMonth(QSqlQueryModel *model)
-{
-    QMultiMap<int, double> data;
-    for(int i = 0; i < model->rowCount(); ++i)
-    {
-        data.insert(model->data(model->index(i,1)).toInt(), model->data(model->index(i,0)).toDouble());
+void MainWindow::rcv_ArrivalDeparture(QSqlQueryModel *model) {
+    ui->tv_MainWindow->setModel(model);
+}
+
+//void MainWindow::rcv_DataPerYear(QMap <int, int> data) {
+//    QVector<QPoint> year_data;
+//    for (auto it = data.begin(); it != data.end(); it++) {
+//        year_data.append(QPoint(it.key(), it.value()));
+//    }
+//}
+
+//void MainWindow::rcv_DataPerMonth(QMap <int, int> data) {
+//    QVector<QPoint> month_data;
+//    for (auto it = data.begin(); it != data.end(); it++) {
+//        month_data.append(QPoint(it.key(), it.value()));
+//    }
+//}
+
+void MainWindow::rcv_DataPerYear(QSqlQueryModel *model) {
+    QVector<int> data;
+    for(size_t i = 0; i < model->rowCount(); i++)     {
+        data.append(model->data(model->index(i, 0)).toInt());
     }
-    statistics_->setDataPerMonth(data);
 }
 
-void MainWindow::RcvSignalCloseStatistics()
-{
-    ui->centralwidget->setEnabled(true);
-    statistics_->close();
+void MainWindow::rcv_DataPerMonth(QSqlQueryModel *model) {
+     QMap<int, int> data;
+    for(size_t i = 0; i < model->rowCount(); i++)     {
+        data.insert(model->data(model->index(i, 1)).toInt(), model->data(model->index(i, 0)).toInt());
+    }
 }
 
+//!< UTILS
+void MainWindow::InitialSetup() {
+    ui->statusbar->addWidget(ui->lb_StatusConnect);
+    ui->lb_StatusConnect->setText("Не подключен к БД");
+    ui->lb_StatusConnect->setStyleSheet("color:red");
 
+    ui->lb_Date->setText("Дата:");
+    ui->rb_Arrival->setText("Прибытие");
+    ui->rb_Departure->setText("Вылет");
+    ui->pb_GetShedule->setText("Получить расписание");
+    ui->pb_ShowWorkload->setText("Показать загруженность");
+
+    ui->gb_ControlPanel->setEnabled(false);
+
+    data_base->AddDataBase(POSTGRE_DRIVER, DB_NAME);
+    ConnectToDB();
+}
+
+void MainWindow::GetAirports() {    
+    ui->tv_MainWindow->setModel(nullptr);
+    data_base->GetAirports();
+}
+
+void MainWindow::on_pb_GetShedule_clicked() {
+    QString airport_code = airports[ui->cb_Airports->currentText()];
+    QString date = ui->de_Date->text();
+
+    if (ui->rb_Arrival->isChecked()) {
+        data_base->GetArrivals(airport_code, date);
+    } else if (ui->rb_Departure->isChecked()) {
+        data_base->GetDepartures(airport_code, date);
+    }
+}
+
+void MainWindow::on_pb_ShowWorkload_clicked() {
+    statistic->close();
+    statistic = new AirportStatistic(nullptr, ui->cb_Airports->currentText());
+    data_base->GetDataPerYear(airports[ui->cb_Airports->currentText()]);
+    data_base->GetDataPerMonth(airports[ui->cb_Airports->currentText()]);
+    statistic->show();
+}
 

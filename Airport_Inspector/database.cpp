@@ -1,165 +1,219 @@
 #include "database.h"
 
-DataBase::DataBase(QObject *parent) : QObject{parent}
-{
-    dataBase_ = new QSqlDatabase();
-    modelQueryMain_= new QSqlQueryModel(this);
-    modelQueryStatistics_ = new QSqlQueryModel(this);
-    statusConnection_ = false;
+Database::Database(QObject *parent) : QObject{parent} {
+    data_base = new QSqlDatabase();
 }
 
-DataBase::~DataBase()
-{
-    delete dataBase_;
+Database::~Database() {
+    delete data_base;
 }
 
-void DataBase::addDataBase(QString driver, QString nameDB)
-{
-    *dataBase_ = QSqlDatabase::addDatabase(driver, nameDB);
+//!< Main methods
+void Database::AddDataBase(QString driver, QString nameDB) {
+    *data_base = QSqlDatabase::addDatabase(driver, nameDB);
 }
 
-bool DataBase::getStatusConnection()
-{
-    return statusConnection_;
+void Database::ConnectToDB() {
+//    data_base->setHostName("981757-ca08998.tmweb.ru");
+//    data_base->setDatabaseName(DB_NAME);
+//    data_base->setUserName("netology_usr_cpp");
+//    data_base->setPassword("CppNeto3");
+//    data_base->setPort(5432);
+
+    data_base->setHostName("localhost");
+    data_base->setDatabaseName(DB_NAME);
+    data_base->setUserName("postgres");
+    data_base->setPassword("Zerg0987");
+    data_base->setPort(5432);
+
+    status_connection = data_base->open();
+    emit sig_SendStatusConnection(status_connection);
 }
 
-void DataBase::connectToDB()
-{
-    //Данные для подключения к БД.
-    QVector<QString> data;
-    data.resize(port + 1);
+void Database::DisconnectFromDataBase(QString nameDb) {
+    *data_base = QSqlDatabase::database(nameDb);
+    data_base->close();
+}
 
-    data[hostName] = "981757-ca08998.tmweb.ru";
-    data[port] = "5432";
-    data[dbName] = "demo";
-    data[login] = "netology_usr_cpp";
-    data[pass] = "CppNeto3";
+QSqlError Database::GetLastError() {
+    return data_base->lastError();
+}
 
-    dataBase_->setHostName(data[hostName]);
-    dataBase_->setPort(data[port].toInt());
-    dataBase_->setDatabaseName(data[dbName]);
-    dataBase_->setUserName(data[login]);
-    dataBase_->setPassword(data[pass]);
+//!< Requests
+void Database::GetAirports() {
+    if (status_connection) {
+        QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
+        QSqlError err;
+        auto query_model = new QSqlQueryModel(this);
 
-    statusConnection_ = dataBase_->open();
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Аэропорт"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Код аэропорта"));
 
-    QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
-    QSqlQuery* query = new QSqlQuery(*dataBase_);
-    QSqlError error;
-    if(!query->exec(request)){
-        error = query->lastError();
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+           emit sig_SendStatusRequest(err);
+        } else {
+           emit sig_SendAirports(query_model);
+        }
     }
-    modelQueryMain_->setQuery(*query);
-
-    emit sig_SendQueryFromDB(modelQueryMain_);
-    emit sig_SendStatusConnection(statusConnection_);
-    emit sig_SendListAirports(modelQueryMain_);
-    delete query;
 }
 
-void DataBase::disconnectFromDB(QString nameDb)
-{
-    *dataBase_ = QSqlDatabase::database(nameDb);
-    dataBase_->close();
-}
 
-QSqlError DataBase::getLastError()
-{
-    return dataBase_->lastError();
-}
 
-void DataBase::getDataArrivals(const QString& airportCode, const QString& date)
-{
-    QString parsedDate = convertInputDate(date);
-    QString request = "SELECT flight_no, scheduled_arrival, ad.airport_name->>'ru' AS name "
-                      "FROM bookings.flights f "
-                      "JOIN bookings.airports_data ad on ad.airport_code = f.departure_airport "
-                      "WHERE (f.arrival_airport  = '" + airportCode + "' AND f.scheduled_arrival::date = date('" + parsedDate + "')) "
-                      "ORDER BY name";
-    QSqlQuery* query = new QSqlQuery(*dataBase_);
-    QSqlError error;
-    if(!query->exec(request)){
-        error = query->lastError();
+void Database::GetArrivals(const QString& airport_code, const QString& date) {
+    if (status_connection) {
+        QString parsed_date = ConvertDate(date);
+        QString request = "SELECT flight_no, scheduled_arrival, ad.airport_name->>'ru' AS name "
+                          "FROM bookings.flights f "
+                          "JOIN bookings.airports_data ad on ad.airport_code = f.departure_airport "
+                          "WHERE (f.arrival_airport  = '" + airport_code + "' AND f.scheduled_arrival::date = date('" + parsed_date + "')) "
+                          "ORDER BY name";
+
+        auto query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Рейс"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Прибытие"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("Аэропорт"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendArrivals(query_model);
+        }
     }
-    modelQueryMain_->setQuery(*query);
-    emit sig_SendDataToArrivals(modelQueryMain_);
-    delete query;
 }
 
-void DataBase::getDataDepartures(const QString &airportCode, const QString& date)
-{
-    QString parsedDate = convertInputDate(date);
-    QString request = "SELECT flight_no, scheduled_departure, ad.airport_name->>'ru' AS name "
-                      "FROM bookings.flights f "
-                      "JOIN bookings.airports_data ad on ad.airport_code = f.arrival_airport "
-                      "WHERE (f.departure_airport  = '" + airportCode + "' AND f.scheduled_departure::date = date('" + parsedDate + "')) "
-                      "ORDER BY name";
-    QSqlQuery* query = new QSqlQuery(*dataBase_);
-    QSqlError error;
-    if(!query->exec(request)){
-        error = query->lastError();
+void Database::GetDepartures(const QString &airport_code, const QString& date) {
+    if (status_connection) {
+        QString parsed_date = ConvertDate(date);
+        QString request = "SELECT flight_no, scheduled_departure, ad.airport_name->>'ru' AS name "
+                          "FROM bookings.flights f "
+                          "JOIN bookings.airports_data ad on ad.airport_code = f.arrival_airport "
+                          "WHERE (f.departure_airport  = '" + airport_code + "' AND f.scheduled_departure::date = date('" + parsed_date + "')) "
+                          "ORDER BY name";
+
+        auto query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Рейс"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Вылет"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("Аэропорт"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDepartures(query_model);
+        }
     }
-    modelQueryMain_->setQuery(*query);
-    emit sig_SendDataToDepartures(modelQueryMain_);
-    delete query;
 }
 
-void DataBase::getDataPerYear(const QString &airportCode)
-{
-    QString request = "SELECT count(flight_no), date_trunc('month', scheduled_departure) AS Month "
-                      "FROM bookings.flights f "
-                      "WHERE (scheduled_departure::date > date('2016-08-31') "
-                      "AND scheduled_departure::date <= date('2017-08-31')) AND "
-                      "(departure_airport = '" + airportCode + "' or arrival_airport = '" + airportCode + "') "
-                      "GROUP BY Month";
+void Database::GetDataPerYear(const QString &airport_code) {
+    if (status_connection) {
+        QString request = "SELECT count(flight_no), date_trunc('month', scheduled_departure) AS Month "
+                          "FROM bookings.flights f "
+                          "WHERE (scheduled_departure::date > date('2016-08-31') "
+                          "AND scheduled_departure::date <= date('2017-08-31')) AND "
+                          "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
+                          "GROUP BY Month";
 
-    QSqlQuery* query = new QSqlQuery(*dataBase_);
-    QSqlError error;
-    if(!query->exec(request)){
-        error = query->lastError();
+        auto query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Количество рейсов"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Месяц"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDataPerYear(query_model);
+        }
+
+//        QSqlQuery query;
+//        query.prepare(request);
+//        if (!query.exec()) {
+//            emit sig_SendStatusRequest(query.lastError());
+//            return;
+//        }
+
+//        QMap <int, int> data;
+//        while(query.next()) {
+//            int month = query.value(1).toDate().month();
+//            int count = query.value(0).toInt();
+//            data.insert(month, count);
+//        }
+//        emit sig_SendDataPerYear(data);
     }
-    modelQueryStatistics_->setQuery(*query);
-    emit sig_SendDataPerYear(modelQueryStatistics_);
-    delete query;
 }
 
-void DataBase::getDataPerMonth(const QString &airportCode)
-{
-    QString request = "SELECT count(flight_no), date_part('month', date_trunc('day', scheduled_departure)), date_trunc('day', scheduled_departure) AS Day "
-                      "FROM bookings.flights f "
-                      "WHERE (scheduled_departure::date > date('2016-08-31') "
-                      "AND scheduled_departure::date <= date('2017-08-31')) AND "
-                      "(departure_airport = '" + airportCode + "' or arrival_airport = '" + airportCode + "') "
-                      "GROUP BY Day";
+void Database::GetDataPerMonth(const QString &airport_code) {
+    if (status_connection) {
+        QString request = "SELECT count(flight_no), date_part('month', date_trunc('day', scheduled_departure)), date_trunc('day', scheduled_departure) AS Day "
+                          "FROM bookings.flights f "
+                          "WHERE (scheduled_departure::date > date('2016-08-31') "
+                          "AND scheduled_departure::date <= date('2017-08-31')) AND "
+                          "(departure_airport = '" + airport_code + "' or arrival_airport = '" + airport_code + "') "
+                          "GROUP BY Day";
 
-    QSqlQuery* query = new QSqlQuery(*dataBase_);
-    QSqlError error;
-    if(!query->exec(request)){
-        error = query->lastError();
+        auto query_model = new QSqlQueryModel(this);
+        QSqlError err;
+        query_model->setQuery(request, *data_base);
+        query_model->setHeaderData(0, Qt::Horizontal, tr("Количество рейсов"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("Месяц"));
+        query_model->setHeaderData(2, Qt::Horizontal, tr("День"));
+
+        err = query_model->lastError();
+
+        if (err.type() != QSqlError::NoError) {
+            emit sig_SendStatusRequest(err);
+        } else {
+            emit sig_SendDataPerMonth(query_model);
+        }
+
+//        QSqlQuery query;
+//        query.prepare(request);
+//        if (!query.exec()) {
+//            emit sig_SendStatusRequest(query.lastError());
+//            return;
+//        }
+
+//        QMap <int, int> data;
+//        while(query.next()) {
+//            int day = query.value(1).toInt();
+//            int count = query.value(0).toInt();
+//            data.insert(day, count);
+//        }
+//        emit sig_SendDataPerMonth(data);
     }
-    modelQueryStatistics_->setQuery(*query);
-    emit sig_SendDataPerMonth(modelQueryStatistics_);
-    delete query;
 }
 
-QString DataBase::convertInputDate(const QString &date)
-{
+//!< UTILS
+QString Database::ConvertDate(const QString &date) {
     QString day, month, year;
-    for(int i = 0; i < date.size(); ++i)
+
+    for(int i = 0; i < date.size(); i++)
     {
-        if(i < 2)
-        {
-            day+=date[i];
+        if(i < 2) {
+            day += date[i];
         }
-        if(i > 2 && i < 5)
-        {
-            month+=date[i];
+
+        if((i > 2) && (i < 5)) {
+            month += date[i];
         }
-        if(i > 5)
-        {
-            year+=date[i];
+
+        if(i > 5) {
+            year += date[i];
         }
     }
-    QString resultStr = year + "-" + month + "-" + day;
-    return resultStr;
+
+    QString result = year + "-" + month + "-" + day;
+    return result;
 }

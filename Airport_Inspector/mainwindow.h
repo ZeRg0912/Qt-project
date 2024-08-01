@@ -2,13 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QMessageBox>
 #include <QtConcurrent>
-#include <QMap>
-
+#include <QMessageBox>
 #include "database.h"
-#include "stopwatch.h"
-#include "statistics.h"
+#include "timer.h"
+#include "airportstatistic.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,65 +20,33 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+public slots:
+    void rcv_StatusConnectionToDB(bool status);
+    void rcv_StatusRequest(QSqlError err);
+    void rcv_Airports(QSqlQueryModel* model);
+    void rcv_ArrivalDeparture(QSqlQueryModel *model);
+    //void rcv_DataPerYear(QMap <int, int> data);
+    //void rcv_DataPerMonth(QMap <int, int> data);
+    void rcv_DataPerYear(QSqlQueryModel *model);
+    void rcv_DataPerMonth(QSqlQueryModel *model);
+
+signals:
+    void sig_StartTimer();
+
 private slots:
-
-    /*!
-     * @brief Запустить подключения к БД.
-     */
-    void RunConnectionToDB();
-
-    /*!
-     * @brief Получение статуса подключения к БД.
-     * @param status Статус подключения.
-     */
-    void RcvSignalSendStatusConnectionToDB(bool status);
-
-    /*!
-     * @brief Заполнение данных об аэропортах в чекбокс.
-     * @param model Модель SQL запроса.
-     */
-    void RcvSignalSendListAirports(QSqlQueryModel *model);
-
-    /*!
-     * @brief Нажатие на кнопку получения расписания.
-     */
-    void on_pb_getList_clicked();
-
-    /*!
-     * @brief Отображение запроса к БД в главном окне.
-     * @param model Модель SQL запроса.
-     */
-    void RcvSignalSendQueryFromDB(QSqlQueryModel *model);
-
-    /*!
-     * @brief Нажатие на кнопку получения загруженности аэропорта.
-     */
-    void on_pb_showLoad_clicked();
-
-    /*!
-     * @brief Данные о загрзке аэропорта за год.
-     * @param model Модель SQL запроса.
-     */
-    void RcvSignalSendDataPerYear(QSqlQueryModel *model);
-
-    /*!
-     * @brief Данные о загрзке аэропорта за месяц.
-     * @param model Модель SQL запроса.
-     */
-    void RcvSignalSendDataPerMonth(QSqlQueryModel *model);
-
-    /*!
-     * @brief Закрытие статистики загруженности аэропорта.
-     */
-    void RcvSignalCloseStatistics();
+    void on_pb_GetShedule_clicked();
+    void on_pb_ShowWorkload_clicked();
 
 private:
-    Ui::MainWindow *ui; //<! Главное окно.
-    DataBase* dataBase_; //<! База данных.
-    Statistics *statistics_; //<! Статистика.
-    QMessageBox *msgBox_; //<! Окно ошибки подключения к БД.
-    QMap<QString, QString> airports_; //<! Аэропорты.
-    bool isFailConnection_; //<! Ошибка подключения к БД.
-    Stopwatch *sw_; //<! Секундомер.
+    Ui::MainWindow *ui;
+    Database* data_base;
+    Timer* timer;
+    QMessageBox *msg;
+    QMap<QString, QString> airports;
+    AirportStatistic* statistic;
+
+    void ConnectToDB();
+    void InitialSetup();
+    void GetAirports();
 };
 #endif // MAINWINDOW_H
