@@ -35,12 +35,12 @@ private:
     QChart* year_chart;
     QChartView* year_chart_view;
     QLineSeries* year_series;
-    QSqlQueryModel* year_model;
+    QVector<QPointF>* year_data;
 
     QChart* month_chart;
     QChartView* month_chart_view;
     QLineSeries* month_series;
-    QVector<QSqlQueryModel*> months_models;
+    QVector<QVector<QPointF>>* months_data;
 
     void InitialSetup();
     void ChartsSetup();

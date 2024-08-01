@@ -62,12 +62,12 @@ void AirportStatistic::ChartsSetup() {
     month_chart->setTitleFont(font);
 
     //!< Установка осей для Годового графика
-    QValueAxis* year_AxisX = new QValueAxis(this);
+    QCategoryAxis* year_AxisX = new QCategoryAxis(this);
     year_AxisX->setTitleText("Месяцы");
     font = year_AxisX->titleFont();
     font.setBold(true);
     year_AxisX->setTitleFont(font);
-    year_AxisX->setLabelFormat("%i");
+    //year_AxisX->setLabelFormat("%i");
     year_chart->addAxis(year_AxisX, Qt::AlignBottom);
     year_series->attachAxis(year_AxisX);
 
