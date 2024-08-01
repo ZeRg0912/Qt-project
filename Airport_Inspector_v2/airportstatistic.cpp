@@ -15,8 +15,8 @@ AirportStatistic::AirportStatistic(QWidget *parent, QString name_) : QWidget(par
         month_data.append(QPointF(i + 1, i));
     }
 
-    UpdateGraph(year_data, year_series);
-    UpdateGraph(month_data, month_series);
+    UpdateGraph(year_data, year_chart_view);
+    UpdateGraph(month_data, month_chart_view);
 }
 
 AirportStatistic::~AirportStatistic() {
@@ -104,24 +104,57 @@ void AirportStatistic::ChartsSetup() {
     ui->wid_MonthChart->layout()->addWidget(month_chart_view);
 }
 
-void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QLineSeries* series) {
+void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view) {
+    if (!chart_view) return;
+
+    QChart* chart = chart_view->chart();
+    if(!chart) return;
+
+    QList<QAbstractSeries*> series_list = chart->series();
+    if (series_list.isEmpty()) return;
+
+    QLineSeries* series = qobject_cast<QLineSeries*>(series_list.first());
+    if (!series) return;
     series->clear();
     series->append(data);
+
+    QList<QAbstractAxis*> axesX = chart->axes(Qt::Horizontal);
+    QList<QAbstractAxis*> axesY = chart->axes(Qt::Vertical);
+
+    if (axesX.isEmpty() || axesY.isEmpty()) return;
+
+    QValueAxis* axisX = static_cast<QValueAxis*>(axesX.first());
+    QValueAxis* axisY = static_cast<QValueAxis*>(axesY.first());
+
+    qreal minX = data.first().x();
+    qreal maxX = data.last().x();
+    qreal minY = data.first().y();
+    qreal maxY = minY;
+
+    for (const auto& point : data) {
+        if (point.x() < minX) minX = point.x();
+        if (point.x() > maxX) maxX = point.x();
+        if (point.x() < minY) minY = point.y();
+        if (point.x() > maxY) maxY = point.y();
+    }
+
+    axisX->setRange(minX, maxX);
+    axisY->setRange(minY, maxY);
 }
 
 void AirportStatistic::on_pb_Close_clicked() {
     this->close();
 }
 
-void AirportStatistic::on_cb_Months_currentIndexChanged(int index) {
+void AirportStatistic::on_cb_Months_highlighted(int index) {
     if (index >= 0) {
         if (month_chart_view != nullptr) {
             QVector<QPointF> month_data;
-            for (size_t i = 0; i <= index; i++) {
+            for (size_t i = 0; i <= index + 1; i++) {
                 month_data.append(QPointF(i, i));
             }
 
-            UpdateGraph(month_data, month_series);
+            UpdateGraph(month_data, month_chart_view);
         }
     }
 }

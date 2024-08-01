@@ -20,7 +20,7 @@ public:
 
 private slots:
     void on_pb_Close_clicked();
-    void on_cb_Months_currentIndexChanged(int index);
+    void on_cb_Months_highlighted(int index);
 
 private:
     Ui::AirportStatistic *ui;
@@ -37,7 +37,7 @@ private:
 
     void InitialSetup();
     void ChartsSetup();
-    void UpdateGraph(const QVector<QPointF>& data, QLineSeries* series);
+    void UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view);
 };
 
 #endif // AIRPORTSTATISTIC_H
