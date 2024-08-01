@@ -8,15 +8,15 @@ AirportStatistic::AirportStatistic(QWidget *parent, QString name_) : QWidget(par
 
     QVector<QPointF> year_data;
     QVector<QPointF> month_data;
-    for (size_t i = 0; i < 12; i++) {
+    for (size_t i = 1; i <= 12; i++) {
         year_data.append(QPointF(i + 1, i));
     }
     for (size_t i = 0; i < 32; i++) {
         month_data.append(QPointF(i + 1, i));
     }
 
-    UpdateGraph(year_data, year_chart_view);
-    UpdateGraph(month_data, month_chart_view);
+    UpdateYearGraph(year_data, year_chart_view);
+    UpdateMonthGraph(month_data, month_chart_view);
 }
 
 AirportStatistic::~AirportStatistic() {
@@ -24,7 +24,6 @@ AirportStatistic::~AirportStatistic() {
 }
 
 void AirportStatistic::InitialSetup(){
-    QVector<QString> month_names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
     for (size_t i = 0; i < month_names.size(); i++) {
         months.insert(i + 1, month_names[i]);
     }
@@ -67,7 +66,11 @@ void AirportStatistic::ChartsSetup() {
     font = year_AxisX->titleFont();
     font.setBold(true);
     year_AxisX->setTitleFont(font);
-    //year_AxisX->setLabelFormat("%i");
+    for (size_t i = 0; i < month_names.size(); i++) {
+        year_AxisX->append(month_names[i], i);
+    }
+    year_AxisX->setLabelsAngle(270);
+    year_AxisX->setRange(0, 12);
     year_chart->addAxis(year_AxisX, Qt::AlignBottom);
     year_series->attachAxis(year_AxisX);
 
@@ -112,7 +115,39 @@ void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model){
 
 }
 
-void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view) {
+void AirportStatistic::UpdateYearGraph(const QVector<QPointF>& data, QChartView* chart_view) {
+    if (!chart_view) return;
+
+    QChart* chart = chart_view->chart();
+    if(!chart) return;
+
+    QList<QAbstractSeries*> series_list = chart->series();
+    if (series_list.isEmpty()) return;
+
+    QLineSeries* series = qobject_cast<QLineSeries*>(series_list.first());
+    if (!series) return;
+    series->clear();
+    series->append(data);
+
+    QList<QAbstractAxis*> axesX = chart->axes(Qt::Horizontal);
+    QList<QAbstractAxis*> axesY = chart->axes(Qt::Vertical);
+
+    if (axesX.isEmpty() || axesY.isEmpty()) return;
+
+    QValueAxis* axisY = static_cast<QValueAxis*>(axesY.first());
+
+    qreal minY = data.first().y();
+    qreal maxY = data.last().y();
+
+    for (const auto& point : data) {
+        if (point.x() < minY) minY = point.y();
+        if (point.x() > maxY) maxY = point.y();
+    }
+
+    axisY->setRange(minY, maxY);
+}
+
+void AirportStatistic::UpdateMonthGraph(const QVector<QPointF>& data, QChartView* chart_view) {
     if (!chart_view) return;
 
     QChart* chart = chart_view->chart();
@@ -162,7 +197,7 @@ void AirportStatistic::on_cb_Months_highlighted(int index) {
                 month_data.append(QPointF(i, i));
             }
 
-            UpdateGraph(month_data, month_chart_view);
+            UpdateMonthGraph(month_data, month_chart_view);
         }
     }
 }

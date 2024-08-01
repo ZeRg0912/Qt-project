@@ -44,7 +44,10 @@ private:
 
     void InitialSetup();
     void ChartsSetup();
-    void UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view);
+    void UpdateYearGraph(const QVector<QPointF>& data, QChartView* chart_view);
+    void UpdateMonthGraph(const QVector<QPointF>& data, QChartView* chart_view);
+
+    QVector<QString> month_names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 };
 
 #endif // AIRPORTSTATISTIC_H
