@@ -73,7 +73,7 @@ void AirportStatistic::ChartsSetup() {
 
     QValueAxis* year_AxisY = new QValueAxis(this);
     year_AxisY->setTitleText("Кол-во рейсов");
-    year_AxisY->setLabelFormat("%g");
+    year_AxisY->setLabelFormat("%i");
     year_chart->addAxis(year_AxisY, Qt::AlignLeft);
     year_series->attachAxis(year_AxisY);
 
@@ -89,7 +89,7 @@ void AirportStatistic::ChartsSetup() {
 
     QValueAxis* month_AxisY = new QValueAxis(this);
     month_AxisY->setTitleText("Кол-во рейсов");
-    month_AxisY->setLabelFormat("%g");
+    month_AxisY->setLabelFormat("%i");
     month_chart->addAxis(month_AxisY, Qt::AlignLeft);
     month_series->attachAxis(month_AxisY);
 
@@ -129,7 +129,7 @@ void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QChartView* cha
     qreal minX = data.first().x();
     qreal maxX = data.last().x();
     qreal minY = data.first().y();
-    qreal maxY = minY;
+    qreal maxY = data.last().y();
 
     for (const auto& point : data) {
         if (point.x() < minX) minX = point.x();
@@ -150,7 +150,7 @@ void AirportStatistic::on_cb_Months_highlighted(int index) {
     if (index >= 0) {
         if (month_chart_view != nullptr) {
             QVector<QPointF> month_data;
-            for (size_t i = 0; i <= index + 1; i++) {
+            for (size_t i = 0; i <= index + 20; i++) {
                 month_data.append(QPointF(i, i));
             }
 
