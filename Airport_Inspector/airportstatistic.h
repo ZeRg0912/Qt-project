@@ -29,24 +29,25 @@ private slots:
 
 private:
     Ui::AirportStatistic *ui;
-    QString name = "";
-    QMap<int, QString> months;
+    QString name;
 
     QChart* year_chart;
     QChartView* year_chart_view;
     QLineSeries* year_series;
-    QVector<QPointF>* year_data;
+    QVector<QPointF>* year_data; // Изменено на QVector для простоты
 
     QChart* month_chart;
     QChartView* month_chart_view;
     QLineSeries* month_series;
-    QVector<QVector<QPointF>>* months_data;
+    QMap<int, QVector<QPointF>>* months_data; // Используем QMap
 
     void InitialSetup();
     void ChartsSetup();
-    void UpdateYearGraph(const QVector<QPointF>& data, QChartView* chart_view);
-    void UpdateMonthGraph(const QVector<QPointF>& data, QChartView* chart_view);
+    void UpdateYearGraph();
+    void UpdateMonthGraph(int month_index);
+    void PrintStoredData();
 
+    QMap<int, QString> months;
     QVector<QString> month_names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 };
 
