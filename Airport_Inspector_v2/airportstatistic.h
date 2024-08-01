@@ -37,7 +37,7 @@ private:
 
     void InitialSetup();
     void ChartsSetup();
-    void UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view);
+    void UpdateGraph(const QVector<QPointF>& data, QLineSeries* series);
 };
 
 #endif // AIRPORTSTATISTIC_H

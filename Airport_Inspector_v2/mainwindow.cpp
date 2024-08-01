@@ -13,8 +13,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(data_base, &Database::sig_SendStatusConnection, this, &MainWindow::rcv_StatusConnectionToDB);
     connect(data_base, &Database::sig_SendStatusRequest,    this, &MainWindow::rcv_StatusRequest);
     connect(data_base, &Database::sig_SendAirports,         this, &MainWindow::rcv_Airports);
-    connect(data_base, &Database::sig_SendArrivals,         this, &MainWindow::rcv_QueryFromDB);
-    connect(data_base, &Database::sig_SendDepartures,       this, &MainWindow::rcv_QueryFromDB);
+    connect(data_base, &Database::sig_SendArrivals,         this, &MainWindow::rcv_ArrivalDeparture);
+    connect(data_base, &Database::sig_SendDepartures,       this, &MainWindow::rcv_ArrivalDeparture);
     connect(data_base, &Database::sig_SendDataPerYear,      this, &MainWindow::rcv_DataPerYear);
     connect(data_base, &Database::sig_SendDataPerMonth,     this, &MainWindow::rcv_DataPerMonth);
 
@@ -70,21 +70,35 @@ void MainWindow::rcv_Airports(QSqlQueryModel* model) {
     ui->tv_MainWindow->setModel(model);
 }
 
-void MainWindow::rcv_QueryFromDB(QSqlQueryModel *model) {
+void MainWindow::rcv_ArrivalDeparture(QSqlQueryModel *model) {
     ui->tv_MainWindow->setModel(model);
 }
 
+//void MainWindow::rcv_DataPerYear(QMap <int, int> data) {
+//    QVector<QPoint> year_data;
+//    for (auto it = data.begin(); it != data.end(); it++) {
+//        year_data.append(QPoint(it.key(), it.value()));
+//    }
+//}
+
+//void MainWindow::rcv_DataPerMonth(QMap <int, int> data) {
+//    QVector<QPoint> month_data;
+//    for (auto it = data.begin(); it != data.end(); it++) {
+//        month_data.append(QPoint(it.key(), it.value()));
+//    }
+//}
+
 void MainWindow::rcv_DataPerYear(QSqlQueryModel *model) {
-    QVector<double> data;
+    QVector<int> data;
     for(size_t i = 0; i < model->rowCount(); i++)     {
-        data.append(model->data(model->index(i, 0)).toDouble());
+        data.append(model->data(model->index(i, 0)).toInt());
     }
 }
 
 void MainWindow::rcv_DataPerMonth(QSqlQueryModel *model) {
-     QMap<int, double> data;
+     QMap<int, int> data;
     for(size_t i = 0; i < model->rowCount(); i++)     {
-        data.insert(model->data(model->index(i, 1)).toInt(), model->data(model->index(i, 0)).toDouble());
+        data.insert(model->data(model->index(i, 1)).toInt(), model->data(model->index(i, 0)).toInt());
     }
 }
 

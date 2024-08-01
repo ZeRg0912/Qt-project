@@ -14,17 +14,17 @@ void Database::AddDataBase(QString driver, QString nameDB) {
 }
 
 void Database::ConnectToDB() {
-    data_base->setHostName("981757-ca08998.tmweb.ru");
-    data_base->setDatabaseName(DB_NAME);
-    data_base->setUserName("netology_usr_cpp");
-    data_base->setPassword("CppNeto3");
-    data_base->setPort(5432);
-
-//    data_base->setHostName("localhost");
+//    data_base->setHostName("981757-ca08998.tmweb.ru");
 //    data_base->setDatabaseName(DB_NAME);
-//    data_base->setUserName("postgres");
-//    data_base->setPassword("Zerg0987");
+//    data_base->setUserName("netology_usr_cpp");
+//    data_base->setPassword("CppNeto3");
 //    data_base->setPort(5432);
+
+    data_base->setHostName("localhost");
+    data_base->setDatabaseName(DB_NAME);
+    data_base->setUserName("postgres");
+    data_base->setPassword("Zerg0987");
+    data_base->setPort(5432);
 
     status_connection = data_base->open();
     emit sig_SendStatusConnection(status_connection);
@@ -136,6 +136,21 @@ void Database::GetDataPerYear(const QString &airport_code) {
         } else {
             emit sig_SendDataPerYear(query_model);
         }
+
+//        QSqlQuery query;
+//        query.prepare(request);
+//        if (!query.exec()) {
+//            emit sig_SendStatusRequest(query.lastError());
+//            return;
+//        }
+
+//        QMap <int, int> data;
+//        while(query.next()) {
+//            int month = query.value(1).toDate().month();
+//            int count = query.value(0).toInt();
+//            data.insert(month, count);
+//        }
+//        emit sig_SendDataPerYear(data);
     }
 }
 
@@ -162,6 +177,21 @@ void Database::GetDataPerMonth(const QString &airport_code) {
         } else {
             emit sig_SendDataPerMonth(query_model);
         }
+
+//        QSqlQuery query;
+//        query.prepare(request);
+//        if (!query.exec()) {
+//            emit sig_SendStatusRequest(query.lastError());
+//            return;
+//        }
+
+//        QMap <int, int> data;
+//        while(query.next()) {
+//            int day = query.value(1).toInt();
+//            int count = query.value(0).toInt();
+//            data.insert(day, count);
+//        }
+//        emit sig_SendDataPerMonth(data);
     }
 }
 

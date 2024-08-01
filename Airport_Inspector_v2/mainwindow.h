@@ -24,7 +24,9 @@ public slots:
     void rcv_StatusConnectionToDB(bool status);
     void rcv_StatusRequest(QSqlError err);
     void rcv_Airports(QSqlQueryModel* model);
-    void rcv_QueryFromDB(QSqlQueryModel *model);
+    void rcv_ArrivalDeparture(QSqlQueryModel *model);
+    //void rcv_DataPerYear(QMap <int, int> data);
+    //void rcv_DataPerMonth(QMap <int, int> data);
     void rcv_DataPerYear(QSqlQueryModel *model);
     void rcv_DataPerMonth(QSqlQueryModel *model);
 
