@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtCharts>
+#include <QSqlQueryModel>
 
 #define NUM_GRAPHS 2
 
@@ -18,6 +19,10 @@ public:
     explicit AirportStatistic(QWidget *parent = nullptr, QString name = "");
     ~AirportStatistic();
 
+public slots:
+    void rcv_DataPerYear(QSqlQueryModel* model);
+    void rcv_DataPerMonth(QSqlQueryModel* model);
+
 private slots:
     void on_pb_Close_clicked();
     void on_cb_Months_highlighted(int index);
@@ -27,13 +32,15 @@ private:
     QString name = "";
     QMap<int, QString> months;
 
-    QChart* month_chart;
-    QChartView* month_chart_view;
-    QLineSeries* month_series;
-
     QChart* year_chart;
     QChartView* year_chart_view;
     QLineSeries* year_series;
+    QSqlQueryModel* year_model;
+
+    QChart* month_chart;
+    QChartView* month_chart_view;
+    QLineSeries* month_series;
+    QVector<QSqlQueryModel*> months_models;
 
     void InitialSetup();
     void ChartsSetup();

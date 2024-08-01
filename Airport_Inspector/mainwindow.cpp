@@ -15,8 +15,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(data_base, &Database::sig_SendAirports,         this, &MainWindow::rcv_Airports);
     connect(data_base, &Database::sig_SendArrivals,         this, &MainWindow::rcv_ArrivalDeparture);
     connect(data_base, &Database::sig_SendDepartures,       this, &MainWindow::rcv_ArrivalDeparture);
-    connect(data_base, &Database::sig_SendDataPerYear,      this, &MainWindow::rcv_DataPerYear);
-    connect(data_base, &Database::sig_SendDataPerMonth,     this, &MainWindow::rcv_DataPerMonth);
+    connect(data_base, &Database::sig_SendDataPerYear,      statistic, &AirportStatistic::rcv_DataPerYear);
+    connect(data_base, &Database::sig_SendDataPerMonth,     statistic, &AirportStatistic::rcv_DataPerMonth);
 
     connect(timer, &Timer::sig_Reconnect, this, &MainWindow::ConnectToDB);
     connect(this, &MainWindow::sig_StartTimer, timer, &Timer::StartTimer);
@@ -72,34 +72,6 @@ void MainWindow::rcv_Airports(QSqlQueryModel* model) {
 
 void MainWindow::rcv_ArrivalDeparture(QSqlQueryModel *model) {
     ui->tv_MainWindow->setModel(model);
-}
-
-//void MainWindow::rcv_DataPerYear(QMap <int, int> data) {
-//    QVector<QPoint> year_data;
-//    for (auto it = data.begin(); it != data.end(); it++) {
-//        year_data.append(QPoint(it.key(), it.value()));
-//    }
-//}
-
-//void MainWindow::rcv_DataPerMonth(QMap <int, int> data) {
-//    QVector<QPoint> month_data;
-//    for (auto it = data.begin(); it != data.end(); it++) {
-//        month_data.append(QPoint(it.key(), it.value()));
-//    }
-//}
-
-void MainWindow::rcv_DataPerYear(QSqlQueryModel *model) {
-    QVector<int> data;
-    for(size_t i = 0; i < model->rowCount(); i++)     {
-        data.append(model->data(model->index(i, 0)).toInt());
-    }
-}
-
-void MainWindow::rcv_DataPerMonth(QSqlQueryModel *model) {
-     QMap<int, int> data;
-    for(size_t i = 0; i < model->rowCount(); i++)     {
-        data.insert(model->data(model->index(i, 1)).toInt(), model->data(model->index(i, 0)).toInt());
-    }
 }
 
 //!< UTILS

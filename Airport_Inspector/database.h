@@ -45,8 +45,6 @@ signals:
     void sig_SendAirports(QSqlQueryModel* model);
     void sig_SendArrivals(QSqlQueryModel* model);
     void sig_SendDepartures(QSqlQueryModel* model);
-    //void sig_SendDataPerYear(QMap <int, int> data);
-    //void sig_SendDataPerMonth(QMap <int, int> data);
     void sig_SendDataPerYear(QSqlQueryModel* model);
     void sig_SendDataPerMonth(QSqlQueryModel* model);
 

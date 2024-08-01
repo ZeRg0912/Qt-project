@@ -60,8 +60,6 @@ void Database::GetAirports() {
     }
 }
 
-
-
 void Database::GetArrivals(const QString& airport_code, const QString& date) {
     if (status_connection) {
         QString parsed_date = ConvertDate(date);
@@ -136,27 +134,12 @@ void Database::GetDataPerYear(const QString &airport_code) {
         } else {
             emit sig_SendDataPerYear(query_model);
         }
-
-//        QSqlQuery query;
-//        query.prepare(request);
-//        if (!query.exec()) {
-//            emit sig_SendStatusRequest(query.lastError());
-//            return;
-//        }
-
-//        QMap <int, int> data;
-//        while(query.next()) {
-//            int month = query.value(1).toDate().month();
-//            int count = query.value(0).toInt();
-//            data.insert(month, count);
-//        }
-//        emit sig_SendDataPerYear(data);
     }
 }
 
 void Database::GetDataPerMonth(const QString &airport_code) {
     if (status_connection) {
-        QString request = "SELECT count(flight_no), date_part('month', date_trunc('day', scheduled_departure)), date_trunc('day', scheduled_departure) AS Day "
+        QString request = "SELECT count(flight_no), date_trunc('day', scheduled_departure) AS Day "
                           "FROM bookings.flights f "
                           "WHERE (scheduled_departure::date > date('2016-08-31') "
                           "AND scheduled_departure::date <= date('2017-08-31')) AND "
@@ -167,8 +150,7 @@ void Database::GetDataPerMonth(const QString &airport_code) {
         QSqlError err;
         query_model->setQuery(request, *data_base);
         query_model->setHeaderData(0, Qt::Horizontal, tr("Количество рейсов"));
-        query_model->setHeaderData(1, Qt::Horizontal, tr("Месяц"));
-        query_model->setHeaderData(2, Qt::Horizontal, tr("День"));
+        query_model->setHeaderData(1, Qt::Horizontal, tr("День"));
 
         err = query_model->lastError();
 
@@ -177,30 +159,13 @@ void Database::GetDataPerMonth(const QString &airport_code) {
         } else {
             emit sig_SendDataPerMonth(query_model);
         }
-
-//        QSqlQuery query;
-//        query.prepare(request);
-//        if (!query.exec()) {
-//            emit sig_SendStatusRequest(query.lastError());
-//            return;
-//        }
-
-//        QMap <int, int> data;
-//        while(query.next()) {
-//            int day = query.value(1).toInt();
-//            int count = query.value(0).toInt();
-//            data.insert(day, count);
-//        }
-//        emit sig_SendDataPerMonth(data);
     }
 }
 
 //!< UTILS
 QString Database::ConvertDate(const QString &date) {
     QString day, month, year;
-
-    for(int i = 0; i < date.size(); i++)
-    {
+    for(int i = 0; i < date.size(); i++) {
         if(i < 2) {
             day += date[i];
         }

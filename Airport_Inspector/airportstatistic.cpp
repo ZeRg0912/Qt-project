@@ -104,6 +104,14 @@ void AirportStatistic::ChartsSetup() {
     ui->wid_MonthChart->layout()->addWidget(month_chart_view);
 }
 
+void AirportStatistic::rcv_DataPerYear(QSqlQueryModel* model){
+
+}
+
+void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model){
+
+}
+
 void AirportStatistic::UpdateGraph(const QVector<QPointF>& data, QChartView* chart_view) {
     if (!chart_view) return;
 
