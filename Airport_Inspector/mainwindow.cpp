@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-
+/*!
+ * @brief Конструктор
+ */
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow) {
     ui->setupUi(this);
     data_base = new Database(this);
@@ -21,13 +23,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     connect(timer, &Timer::sig_Reconnect, this, &MainWindow::ConnectToDB);
     connect(this, &MainWindow::sig_StartTimer, timer, &Timer::StartTimer);
 }
-
+/*!
+ * @brief Деструктор
+ */
 MainWindow::~MainWindow() {
     delete ui;
     delete statistic;
 }
 
 //!< Main methods
+/*!
+ * @brief Подключение к БД
+ */
 void MainWindow::ConnectToDB() {
     auto connect_to_DB = [this]{
         ui->lb_StatusConnect->setText("Подключение...");
@@ -36,7 +43,10 @@ void MainWindow::ConnectToDB() {
     };
     auto future = QtConcurrent::run(connect_to_DB);
 }
-
+/*!
+ * @brief Получение статуса коннекта к БД
+ * @param bool_connection состояние подключения
+ */
 void MainWindow::rcv_StatusConnectionToDB(bool status_connection) {
     if(status_connection) {
         ui->lb_StatusConnect->setText("Подключено к БД");
@@ -53,7 +63,10 @@ void MainWindow::rcv_StatusConnectionToDB(bool status_connection) {
         emit sig_StartTimer();
     }
 }
-
+/*!
+ * @brief Получение статуса выполнения реквеста к БД
+ * @param err состояние ошибки
+ */
 void MainWindow::rcv_StatusRequest(QSqlError err) {
     if (err.type() != QSqlError::NoError) {
         msg->setIcon(QMessageBox::Warning);
@@ -61,7 +74,10 @@ void MainWindow::rcv_StatusRequest(QSqlError err) {
         msg->exec();
     }
 }
-
+/*!
+ * @brief Получаем список аэропортов из БД
+ * @param model модель запроса из БД
+ */
 void MainWindow::rcv_Airports(QSqlQueryModel* model) {
     for (size_t i = 0; i < model->rowCount(); i++) {
         ui->cb_Airports->addItem(model->data(model->index(i, 0)).toString());
@@ -70,12 +86,18 @@ void MainWindow::rcv_Airports(QSqlQueryModel* model) {
 
     ui->tv_MainWindow->setModel(model);
 }
-
+/*!
+ * @brief Получаем список прибый/вылетов
+ * @param model модель запроса из БД
+ */
 void MainWindow::rcv_ArrivalDeparture(QSqlQueryModel *model) {
     ui->tv_MainWindow->setModel(model);
 }
 
 //!< UTILS
+/*!
+ * @brief Первоначальная настройка в конструкторе
+ */
 void MainWindow::InitialSetup() {
     ui->statusbar->addWidget(ui->lb_StatusConnect);
     ui->lb_StatusConnect->setText("Не подключен к БД");
@@ -92,12 +114,16 @@ void MainWindow::InitialSetup() {
     data_base->AddDataBase(POSTGRE_DRIVER, DB_NAME);
     ConnectToDB();
 }
-
+/*!
+ * @brief Отправка запроса в БД для получения списка аэропортов
+ */
 void MainWindow::GetAirports() {    
     ui->tv_MainWindow->setModel(nullptr);
     data_base->GetAirports();
 }
-
+/*!
+ * @brief По кнопке получения списка в главном окне, вывод в главном окне прибытий/вылетов
+ */
 void MainWindow::on_pb_GetShedule_clicked() {
     QString airport_code = airports[ui->cb_Airports->currentText()];
     QString date = ui->de_Date->text();
@@ -108,7 +134,9 @@ void MainWindow::on_pb_GetShedule_clicked() {
         data_base->GetDepartures(airport_code, date);
     }
 }
-
+/*!
+ * @brief По кнопке отображения статистики выбранного аэропорта, открытие отдельного окна с его статистикой
+ */
 void MainWindow::on_pb_ShowWorkload_clicked() {
     statistic->close();
     statistic->SetAirportName(ui->cb_Airports->currentText());

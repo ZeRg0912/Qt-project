@@ -1,18 +1,27 @@
 #include "database.h"
-
+/*!
+ * @brief Конструктор
+ */
 Database::Database(QObject *parent) : QObject{parent} {
     data_base = new QSqlDatabase();
 }
-
+/*!
+ * @brief Деструктор
+ */
 Database::~Database() {
     delete data_base;
 }
 
 //!< Main methods
+/*!
+ * @brief Инициализация БД
+ */
 void Database::AddDataBase(QString driver, QString nameDB) {
     *data_base = QSqlDatabase::addDatabase(driver, nameDB);
 }
-
+/*!
+ * @brief Инициализация списка данных и подключение к БД
+ */
 void Database::ConnectToDB() {
 //    data_base->setHostName("981757-ca08998.tmweb.ru");
 //    data_base->setDatabaseName(DB_NAME);
@@ -29,17 +38,25 @@ void Database::ConnectToDB() {
     status_connection = data_base->open();
     emit sig_SendStatusConnection(status_connection);
 }
-
+/*!
+ * @brief Отсоединение от БД
+ * @param nameDb имя БД
+ */
 void Database::DisconnectFromDataBase(QString nameDb) {
     *data_base = QSqlDatabase::database(nameDb);
     data_base->close();
 }
-
+/*!
+ * @brief Получаем последнюю ошибку из БД
+ */
 QSqlError Database::GetLastError() {
     return data_base->lastError();
 }
 
 //!< Requests
+/*!
+ * @brief Получаем список аэропортов
+ */
 void Database::GetAirports() {
     if (status_connection) {
         QString request = "SELECT airport_name->>'ru' AS name, airport_code FROM bookings.airports_data ORDER BY name";
@@ -59,7 +76,11 @@ void Database::GetAirports() {
         }
     }
 }
-
+/*!
+ * @brief Получаем список прибытий
+ * @param airport_code код аэропорта
+ * @param date дата, за какой период
+ */
 void Database::GetArrivals(const QString& airport_code, const QString& date) {
     if (status_connection) {
         QString parsed_date = ConvertDate(date);
@@ -85,7 +106,11 @@ void Database::GetArrivals(const QString& airport_code, const QString& date) {
         }
     }
 }
-
+/*!
+ * @brief Получаем список вылетов
+ * @param airport_code код аэропорта
+ * @param date дата, за какой период
+ */
 void Database::GetDepartures(const QString &airport_code, const QString& date) {
     if (status_connection) {
         QString parsed_date = ConvertDate(date);
@@ -111,7 +136,10 @@ void Database::GetDepartures(const QString &airport_code, const QString& date) {
         }
     }
 }
-
+/*!
+ * @brief Получаем данные аэропорта за год
+ * @param airport_code код аэропорта
+ */
 void Database::GetDataPerYear(const QString &airport_code) {
     if (status_connection) {
         QString request = "SELECT count(flight_no), date_trunc('month', scheduled_departure) AS Month "
@@ -137,6 +165,10 @@ void Database::GetDataPerYear(const QString &airport_code) {
     }
 }
 
+/*!
+ * @brief Получаем данные аэропорта за год по месяцам
+ * @param airport_code код аэропорта
+ */
 void Database::GetDataPerMonth(const QString &airport_code) {
     if (status_connection) {
         QString request = "SELECT count(flight_no), date_trunc('day', scheduled_departure) AS Day "
@@ -163,6 +195,10 @@ void Database::GetDataPerMonth(const QString &airport_code) {
 }
 
 //!< UTILS
+/*!
+ * @brief Вспомогательная функция для конвертации даты для реквеста к ДБ
+ * @param date дата
+ */
 QString Database::ConvertDate(const QString &date) {
     QString day, month, year;
     for(int i = 0; i < date.size(); i++) {

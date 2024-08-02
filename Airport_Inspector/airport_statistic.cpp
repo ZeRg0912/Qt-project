@@ -1,6 +1,8 @@
 #include "airport_statistic.h"
 #include "ui_airport_statistic.h"
-
+/*!
+ * @brief Конструктор
+ */
 AirportStatistic::AirportStatistic(QWidget *parent)
     : QWidget(parent), ui(new Ui::AirportStatistic) {
     ui->setupUi(this);
@@ -26,17 +28,24 @@ AirportStatistic::AirportStatistic(QWidget *parent)
     UpdateMonthGraph(1);
     PrintStoredData();
 }
-
+/*!
+ * @brief Деструктор
+ */
 AirportStatistic::~AirportStatistic() {
     delete year_data;
     delete months_data;
     delete ui;
 }
-
+/*!
+ * @brief Установить имя выбранного аэропорта
+ * @param name_ имя
+ */
 void AirportStatistic::SetAirportName(QString name_) {
     name = name_;
 }
-
+/*!
+ * @brief Первоначальная настройка в конструкторе
+ */
 void AirportStatistic::InitialSetup() {
     ui->tabWidget->setCurrentIndex(0);
 
@@ -52,7 +61,9 @@ void AirportStatistic::InitialSetup() {
     ui->tabWidget->setTabText(0, "За год");
     ui->tabWidget->setTabText(1, "За месяц");
 }
-
+/*!
+ * @brief Первоначальная настройка графиков
+ */
 void AirportStatistic::ChartsSetup() {
     year_chart = new QChart();
     year_chart_view = new QChartView(year_chart);
@@ -120,7 +131,9 @@ void AirportStatistic::ChartsSetup() {
     ui->wid_MonthChart->setLayout(new QVBoxLayout());
     ui->wid_MonthChart->layout()->addWidget(month_chart_view);
 }
-
+/*!
+ * @brief Получение данных за год
+ */
 void AirportStatistic::rcv_DataPerYear(QSqlQueryModel* model) {
     year_data->clear();
     qDebug() << "Получены данные за год. Количество строк:" << model->rowCount();
@@ -133,7 +146,9 @@ void AirportStatistic::rcv_DataPerYear(QSqlQueryModel* model) {
     }
     UpdateYearGraph();
 }
-
+/*!
+ * @brief Получение данных по месяцам
+ */
 void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model) {
     int current_month = ui->cb_Months->currentIndex() + 1; // +1 для соответствия с индексами месяцев
 
@@ -157,7 +172,9 @@ void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model) {
     UpdateMonthGraph(current_month);
     PrintStoredData(); // Проверка сразу после обновления
 }
-
+/*!
+ * @brief Обновленя графика за год
+ */
 void AirportStatistic::UpdateYearGraph() {
     year_series->clear();
     year_series->append(*year_data);
@@ -179,7 +196,10 @@ void AirportStatistic::UpdateYearGraph() {
         qDebug() << "Диапазон Y-оси графика за год установлен на:" << minY << "до" << maxY;
     }
 }
-
+/*!
+ * @brief Обновление графика за выбранный месяц
+ * @param month_index выбранный месяц
+ */
 void AirportStatistic::UpdateMonthGraph(int month_index) {
     month_series->clear();
 
@@ -220,7 +240,9 @@ void AirportStatistic::UpdateMonthGraph(int month_index) {
         month_chart->update(); // Обновите график после изменения диапазонов
     }
 }
-
+/*!
+ * @brief Вспомогательная функция для проверки записанных данных
+ */
 void AirportStatistic::PrintStoredData() {
     // Проверка данных за год
     qDebug() << "Данные за год:";
@@ -237,11 +259,16 @@ void AirportStatistic::PrintStoredData() {
         }
     }
 }
-
+/*!
+ * @brief Закрытие окна
+ */
 void AirportStatistic::on_pb_Close_clicked() {
     close();
 }
-
+/*!
+ * @brief Смена месяца
+ * @param index индекс месяца
+ */
 void AirportStatistic::on_cb_Months_highlighted(int index) {
     int month = index + 1; // Месяцы начинаются с 1
     if (months_data->contains(month)) {
