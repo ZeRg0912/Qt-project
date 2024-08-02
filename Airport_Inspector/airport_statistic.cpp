@@ -38,6 +38,8 @@ void AirportStatistic::SetAirportName(QString name_) {
 }
 
 void AirportStatistic::InitialSetup() {
+    ui->tabWidget->setCurrentIndex(0);
+
     for (size_t i = 0; i < month_names.size(); i++) {
         months.insert(i + 1, month_names[i]);
     }
