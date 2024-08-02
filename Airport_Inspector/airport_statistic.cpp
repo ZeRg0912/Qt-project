@@ -18,7 +18,7 @@ AirportStatistic::AirportStatistic(QWidget *parent)
 
     for (size_t month = 1; month <= 12; month++) {
         QVector<QPointF> data;
-        for (size_t day = 1; day <= 30; day++) {
+        for (size_t day = 1; day <= 31; day++) {
             data.append(QPointF(day, day * month));
         }
         months_data->insert(month, data);
@@ -76,6 +76,7 @@ void AirportStatistic::ChartsSetup() {
     year_chart->addSeries(year_series);
     year_chart->legend()->hide();
     year_chart->setTitle("Статистика за год:");
+    year_chart->setAnimationOptions(QChart::SeriesAnimations);
     QFont font = year_chart->titleFont();
     font.setBold(true);
     year_chart->setTitleFont(font);
@@ -83,6 +84,7 @@ void AirportStatistic::ChartsSetup() {
     month_chart->addSeries(month_series);
     month_chart->legend()->hide();
     month_chart->setTitle("Статистика за месяц:");
+    month_chart->setAnimationOptions(QChart::SeriesAnimations);
     font = month_chart->titleFont();
     font.setBold(true);
     month_chart->setTitleFont(font);
@@ -157,7 +159,7 @@ void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model) {
     }
 
     QVector<QPointF>& data = months_data->operator[](current_month);
-    data.clear(); // Очистка данных перед добавлением новых
+    data.clear();
 
     qDebug() << "Получены данные за месяц для месяца:" << current_month << "Количество строк:" << model->rowCount();
 
@@ -170,7 +172,6 @@ void AirportStatistic::rcv_DataPerMonth(QSqlQueryModel* model) {
     }
 
     UpdateMonthGraph(current_month);
-    PrintStoredData(); // Проверка сразу после обновления
 }
 /*!
  * @brief Обновленя графика за год
@@ -237,20 +238,18 @@ void AirportStatistic::UpdateMonthGraph(int month_index) {
         qDebug() << "Диапазон X-оси графика за месяц установлен на:" << minX << "до" << maxX;
         qDebug() << "Диапазон Y-оси графика за месяц установлен на:" << minY << "до" << maxY;
 
-        month_chart->update(); // Обновите график после изменения диапазонов
+        month_chart->update();
     }
 }
 /*!
  * @brief Вспомогательная функция для проверки записанных данных
  */
 void AirportStatistic::PrintStoredData() {
-    // Проверка данных за год
     qDebug() << "Данные за год:";
     for (const QPointF& point : *year_data) {
         qDebug() << "Месяц:" << point.x() << "Рейсы:" << point.y();
     }
 
-    // Проверка данных по месяцам
     qDebug() << "Данные по месяцам:";
     for (auto it = months_data->constBegin(); it != months_data->constEnd(); ++it) {
         qDebug() << "Месяц:" << it.key();
@@ -270,12 +269,12 @@ void AirportStatistic::on_pb_Close_clicked() {
  * @param index индекс месяца
  */
 void AirportStatistic::on_cb_Months_highlighted(int index) {
-    int month = index + 1; // Месяцы начинаются с 1
+    int month = index + 1;
     if (months_data->contains(month)) {
         UpdateMonthGraph(month);
     } else {
         qDebug() << "Нет данных для месяца:" << month;
-        month_series->clear(); // Очистка графика, если данных нет
+        month_series->clear();
     }
     PrintStoredData();
 }

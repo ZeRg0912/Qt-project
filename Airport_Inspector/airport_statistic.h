@@ -36,12 +36,12 @@ private:
     QChart* year_chart;
     QChartView* year_chart_view;
     QLineSeries* year_series;
-    QVector<QPointF>* year_data; // Изменено на QVector для простоты
+    QVector<QPointF>* year_data;
 
     QChart* month_chart;
     QChartView* month_chart_view;
     QLineSeries* month_series;
-    QMap<int, QVector<QPointF>>* months_data; // Используем QMap
+    QMap<int, QVector<QPointF>>* months_data;
 
     void InitialSetup();
     void ChartsSetup();
