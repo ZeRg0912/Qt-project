@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     data_base = new Database(this);
     timer = new Timer(this);
     msg = new QMessageBox(this);
-    statistic = new AirportStatistic(nullptr, "");
+    statistic = new AirportStatistic();
 
     InitialSetup();
 
@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow() {
     delete ui;
+    delete statistic;
 }
 
 //!< Main methods
@@ -110,7 +111,7 @@ void MainWindow::on_pb_GetShedule_clicked() {
 
 void MainWindow::on_pb_ShowWorkload_clicked() {
     statistic->close();
-    statistic = new AirportStatistic(nullptr, ui->cb_Airports->currentText());
+    statistic->SetAirportName(ui->cb_Airports->currentText());
     data_base->GetDataPerYear(airports[ui->cb_Airports->currentText()]);
     data_base->GetDataPerMonth(airports[ui->cb_Airports->currentText()]);
     statistic->show();

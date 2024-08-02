@@ -1,5 +1,5 @@
-#ifndef AIRPORTSTATISTIC_H
-#define AIRPORTSTATISTIC_H
+#ifndef AIRPORT_STATISTIC_H
+#define AIRPORT_STATISTIC_H
 
 #include <QWidget>
 #include <QtCharts>
@@ -16,8 +16,10 @@ class AirportStatistic : public QWidget
     Q_OBJECT
 
 public:
-    explicit AirportStatistic(QWidget *parent = nullptr, QString name = "");
+    explicit AirportStatistic(QWidget *parent = nullptr);
     ~AirportStatistic();
+
+    void SetAirportName(QString name_);
 
 public slots:
     void rcv_DataPerYear(QSqlQueryModel* model);
@@ -47,8 +49,9 @@ private:
     void UpdateMonthGraph(int month_index);
     void PrintStoredData();
 
+
     QMap<int, QString> months;
     QVector<QString> month_names = {"Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"};
 };
 
-#endif // AIRPORTSTATISTIC_H
+#endif // AIRPORT_STATISTIC_H

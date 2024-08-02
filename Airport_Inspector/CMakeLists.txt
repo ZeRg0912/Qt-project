@@ -19,13 +19,13 @@ set(PROJECT_SOURCES
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
-        Database.h
-        Database.cpp
-        Timer.h
-        Timer.cpp
-        AirportStatistic.h
-        AirportStatistic.cpp
-        AirportStatistic.ui
+        database.h
+        database.cpp
+        timer.h
+        timer.cpp
+        airport_statistic.h
+        airport_statistic.cpp
+        airport_statistic.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

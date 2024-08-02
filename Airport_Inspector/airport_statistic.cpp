@@ -1,20 +1,40 @@
-#include "airportstatistic.h"
-#include "ui_airportstatistic.h"
+#include "airport_statistic.h"
+#include "ui_airport_statistic.h"
 
-AirportStatistic::AirportStatistic(QWidget *parent, QString name_)
-    : QWidget(parent), name(name_), ui(new Ui::AirportStatistic) {
+AirportStatistic::AirportStatistic(QWidget *parent)
+    : QWidget(parent), ui(new Ui::AirportStatistic) {
     ui->setupUi(this);
     InitialSetup();
     ChartsSetup();
 
     year_data = new QVector<QPointF>();
     months_data = new QMap<int, QVector<QPointF>>();
+
+    for (size_t i = 0; i <= 12; i++) {
+        year_data->append(QPointF(i, i * 10));
+    }
+
+    for (size_t month = 1; month <= 12; month++) {
+        QVector<QPointF> data;
+        for (size_t day = 1; day <= 30; day++) {
+            data.append(QPointF(day, day * month));
+        }
+        months_data->insert(month, data);
+    }
+
+    UpdateYearGraph();
+    UpdateMonthGraph(1);
+    PrintStoredData();
 }
 
 AirportStatistic::~AirportStatistic() {
     delete year_data;
     delete months_data;
     delete ui;
+}
+
+void AirportStatistic::SetAirportName(QString name_) {
+    name = name_;
 }
 
 void AirportStatistic::InitialSetup() {

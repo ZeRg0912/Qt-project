@@ -10,8 +10,8 @@
 #include <QtConcurrent>
 
 #define POSTGRE_DRIVER "QPSQL"
-#define DB_NAME "demo"
-//#define DB_NAME "test-db"
+//#define DB_NAME "demo"
+#define DB_NAME "test-db"
 
 class Database : public QObject
 {
