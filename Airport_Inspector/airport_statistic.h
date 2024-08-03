@@ -29,13 +29,19 @@ private slots:
     void on_pb_Close_clicked();
     void on_cb_Months_highlighted(int index);
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
+
+signals:
+    void sig_Closed();
+
 private:
     Ui::AirportStatistic *ui;
     QString name;
 
     QChart* year_chart;
     QChartView* year_chart_view;
-    QLineSeries* year_series;
+    QBarSeries* year_series;
     QVector<QPointF>* year_data;
 
     QChart* month_chart;

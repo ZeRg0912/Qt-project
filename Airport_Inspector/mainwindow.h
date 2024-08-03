@@ -25,6 +25,7 @@ public slots:
     void rcv_StatusRequest(QSqlError err);
     void rcv_Airports(QSqlQueryModel* model);
     void rcv_ArrivalDeparture(QSqlQueryModel* model);
+    void rcv_StatisticClosed();
 
 signals:
     void sig_StartTimer();

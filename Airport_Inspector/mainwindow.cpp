@@ -22,6 +22,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     connect(timer, &Timer::sig_Reconnect, this, &MainWindow::ConnectToDB);
     connect(this, &MainWindow::sig_StartTimer, timer, &Timer::StartTimer);
+
+    connect(statistic, &AirportStatistic::sig_Closed,      this, &MainWindow::rcv_StatisticClosed);
 }
 /*!
  * @brief Деструктор
@@ -139,9 +141,13 @@ void MainWindow::on_pb_GetShedule_clicked() {
  */
 void MainWindow::on_pb_ShowWorkload_clicked() {
     statistic->close();
+    ui->centralwidget->setDisabled(true);
     statistic->SetAirportName(ui->cb_Airports->currentText());
     data_base->GetDataPerYear(airports[ui->cb_Airports->currentText()]);
     data_base->GetDataPerMonth(airports[ui->cb_Airports->currentText()]);
     statistic->show();
 }
 
+void MainWindow::rcv_StatisticClosed(){
+    ui->centralwidget->setDisabled(false);
+}
