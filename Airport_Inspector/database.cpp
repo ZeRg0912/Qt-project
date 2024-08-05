@@ -29,12 +29,6 @@ void Database::ConnectToDB() {
     data_base->setPassword("CppNeto3");
     data_base->setPort(5432);
 
-//    data_base->setHostName("localhost");
-//    data_base->setDatabaseName(DB_NAME);
-//    data_base->setUserName("postgres");
-//    data_base->setPassword("Zerg0987");
-//    data_base->setPort(5432);
-
     status_connection = data_base->open();
     emit sig_SendStatusConnection(status_connection);
 }
