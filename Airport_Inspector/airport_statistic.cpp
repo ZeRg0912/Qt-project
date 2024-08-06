@@ -33,14 +33,7 @@ void AirportStatistic::SetAirportName(QString name_) {
  */
 void AirportStatistic::InitialSetup() {
     ui->tabWidget->setCurrentIndex(0);
-    ui->cb_Months->setCurrentIndex(0);
-
-    for (size_t i = 0; i < month_names.size(); i++) {
-        months.insert(i + 1, month_names[i]);
-    }
-    for (auto it = months.begin(); it != months.end(); it++) {
-        ui->cb_Months->addItem(it.value());
-    }
+    ui->cb_Months->setCurrentIndex(0);    
 
     ui->pb_Close->setText("Закрыть статистику");
     ui->tabWidget->setTabText(0, "За год");
@@ -57,6 +50,13 @@ void AirportStatistic::ChartsSetup() {
     month_chart = new QChart();
     month_chart_view = new QChartView(month_chart);
     month_series = new QLineSeries(this);
+
+    for (size_t i = 0; i < month_names.size(); i++) {
+        months.insert(i + 1, month_names[i]);
+    }
+    for (auto it = months.begin(); it != months.end(); it++) {
+        ui->cb_Months->addItem(it.value());
+    }
 
     year_chart->addSeries(year_series);
     year_chart->legend()->hide();
